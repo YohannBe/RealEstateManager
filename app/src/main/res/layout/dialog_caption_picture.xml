@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/my_register_dialog">
+    android:layout_height="match_parent">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="20dp"
+        android:paddingHorizontal="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,30 +17,36 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="10dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <ImageView
-                android:layout_marginTop="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:src="@drawable/no_account_icons" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text = "No account was found \n maybe try again or register"
-                android:textSize="17sp"
+                android:text="add description"
                 android:textAlignment="center"
-                android:layout_margin="@dimen/margin_small"
-                android:drawableEnd="@drawable/breakfeast_icons"/>
+                android:layout_marginVertical="10dp"
+                />
+
+            <ImageView
+                android:id="@+id/imageview_dialog_caption"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"/>
+
+            <Spinner
+                android:id="@+id/spinner_dialog_caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="@dimen/margin_big">
+                android:layout_marginBottom="15dp">
+
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
@@ -55,7 +61,7 @@
                         android:layout_margin="2dp"
                         app:cardCornerRadius="5dp">
                         <Button
-                            android:id="@+id/cancel_button_dialog"
+                            android:id="@+id/cancel_dialog_caption"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@color/white"
@@ -73,7 +79,7 @@
                     android:backgroundTint="@color/colorSecondary"
                     android:layout_margin="@dimen/margin_small">
                     <Button
-                        android:id="@+id/register_button_dialog"
+                        android:id="@+id/save_button_caption"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/colorSecondary"
@@ -81,17 +87,7 @@
                         android:text="Register"
                         android:textColor="@color/white"/>
                 </androidx.cardview.widget.CardView>
-
             </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Forgot password ?"
-                android:textAlignment="center"
-                android:layout_marginTop="@dimen/margin_small"
-                android:layout_marginBottom="@dimen/margin_big"/>
         </LinearLayout>
-
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,5 +23,9 @@ class RealEstateRepository (private val realEstateDao: RealEstateDao) {
         realEstateDao.deleteRealEstate(realEstate)
     }
 
+    fun loadRealEstate(id: Int): LiveData<RealEstate>{
+        return realEstateDao.loadRealEstate(id)
+    }
+
 
 }

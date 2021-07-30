@@ -3,6 +3,11 @@
     package="com.example.realestatemanager">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="@string/google_maps_key" />
 
     <application
         android:allowBackup="true"
@@ -11,7 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RealEstateManager">
-        <activity android:name=".view.activities.ProfileSettingActivity"></activity>
+        <activity android:name=".view.activities.ProfileSettingActivity" />
         <activity android:name=".view.activities.LogInActivity" />
         <activity
             android:name=".ui.login.LoginActivity"

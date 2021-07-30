@@ -2,24 +2,29 @@ package com.example.realestatemanager.view.myRecyclerView
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstate
+import com.example.realestatemanager.view.myInterface.CommunicatorInterface
+import java.nio.charset.Charset
 
-class RecyclerViewAdapterApartment(context: Context) :
+class RecyclerViewAdapterApartment(
+    context: Context,
+    communicatorInterface: CommunicatorInterface
+) :
     RecyclerView.Adapter<RecyclerViewAdapterApartment.ViewHolder>() {
 
     private var data: List<RealEstate> = ArrayList()
     private val context = context
+    private val communicatorInterface = communicatorInterface
 
     fun updateApartmentList(list: List<RealEstate>) {
         this.data = list
@@ -46,18 +51,16 @@ class RecyclerViewAdapterApartment(context: Context) :
         holder.address.text = data[position].address
         holder.price.text = "$ " + data[position].price.toString()
         holder.type.text = data[position].type
+        val imageByteArray: ByteArray = Base64.decode(data[position].photoReference[0], Base64.DEFAULT)
         holder.pic.setImageBitmap(
             BitmapFactory.decodeByteArray(
-                data[position].photoReference,
+                imageByteArray,
                 0,
-                data[position].photoReference.size
+                imageByteArray.size
             )
         )
         holder.parent.setOnClickListener {
-
-            for (i in 1 until data[position].listPOI.size)
-            Toast.makeText(context, data[position].listPOI[i], Toast.LENGTH_SHORT).show()
-
+            communicatorInterface.passData(data[position].id)
         }
     }
 

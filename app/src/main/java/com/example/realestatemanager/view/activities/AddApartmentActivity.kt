@@ -4,7 +4,9 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ImageDecoder
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,81 +14,55 @@ import android.provider.MediaStore
 import android.text.TextUtils
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import com.example.realestatemanager.R
+import com.example.realestatemanager.databinding.ActivityAddApartmentBinding
 import com.example.realestatemanager.model.myObjects.RealEstate
+import com.example.realestatemanager.utils.*
 import com.example.realestatemanager.viewmodel.Injection
 import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
-import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+
 class AddApartmentActivity : AppCompatActivity() {
 
-    private lateinit var buttonSave: Button
-    private lateinit var description: EditText
-    private lateinit var price: EditText
-    private lateinit var surface: EditText
-    private lateinit var address: EditText
-    private lateinit var picture: ImageButton
-    private lateinit var spinner: Spinner
-    private lateinit var school: CheckBox
-    private lateinit var park: CheckBox
-    private lateinit var bus: CheckBox
-    private lateinit var sport: CheckBox
-    private lateinit var stadium: CheckBox
-    private lateinit var pool: CheckBox
-    private lateinit var subwyay: CheckBox
-    private lateinit var restaurant: CheckBox
-    private lateinit var market: CheckBox
-
     private var listPOI = ArrayList<String>()
+    private var listCaption = ArrayList<String>()
     private var type: String = ""
-    private var chosenPicture: Uri? = null
-    private var imageByte: ByteArray? = null
+    private var captionString: String = ""
+    private var imageList: ArrayList<String> = ArrayList()
     private val PERMS = Manifest.permission.READ_EXTERNAL_STORAGE
-    private val RC_CHOOSE_PHOTO = 1234
-    private val RC_IMAGE_PERMS = 100
 
+
+    private lateinit var binding: ActivityAddApartmentBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_apartment)
+        binding = ActivityAddApartmentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val viewModelFactory = Injection.provideViewModelFactory(this)
         val realEstateAgentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
             RealEstateAgentViewModel::class.java
         )
 
-        val idAgent = intent.getIntExtra("idAgent", -1)
-        description = findViewById(R.id.editTextDescription)
-        price = findViewById(R.id.editTextNumberPrice)
-        surface = findViewById(R.id.editTextNumberSurface)
-        address = findViewById(R.id.editTextAddress)
-        picture = findViewById(R.id.imageview_apartment)
-        spinner = findViewById(R.id.spinner_type)
-        school = findViewById(R.id.school)
-        park = findViewById(R.id.parc)
-        bus = findViewById(R.id.Bus)
-        stadium = findViewById(R.id.Stadium)
-        sport = findViewById(R.id.Sport)
-        pool = findViewById(R.id.pool)
-        subwyay = findViewById(R.id.Metro)
-        restaurant = findViewById(R.id.restaurant)
-        market = findViewById(R.id.commerce)
+        val idAgent = intent.getIntExtra(intentIdAgent, -1)
+
 
         val arrayType: Array<String> = resources.getStringArray(R.array.type)
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item, arrayType
         )
-        spinner.adapter = adapter
+        binding.spinnerType.adapter = adapter
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spinnerType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
@@ -102,36 +78,58 @@ class AddApartmentActivity : AppCompatActivity() {
 
         }
 
-        picture.setOnClickListener {
+        binding.imageviewApartment.setOnClickListener {
             onClickAddFile()
         }
 
-
-
-        buttonSave = findViewById(R.id.button_save_apartment)
-        buttonSave.setOnClickListener {
+        binding.buttonSaveApartment.setOnClickListener {
 
             if (!TextUtils.isEmpty(type) &&
-                !TextUtils.isEmpty(description.text.toString()) &&
-                !TextUtils.isEmpty(price.text.toString()) &&
-                !TextUtils.isEmpty(surface.text.toString()) &&
-                !TextUtils.isEmpty(address.text.toString()) &&
-                imageByte != null
+                !TextUtils.isEmpty(binding.editTextDescription.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextNumberPrice.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextNumberSurface.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextAddress.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextNumberAddress.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextzipcodeAddress.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextcity.text.toString()) &&
+                !TextUtils.isEmpty(binding.editTextCountry.text.toString()) &&
+                imageList.size != 0 &&
+                !TextUtils.isEmpty(binding.editTextroom.text.toString())
             ) {
-                checkCheckButton()
+                listPOI = checkCheckButton(
+                    binding.school,
+                    binding.parc,
+                    binding.Bus,
+                    binding.Stadium,
+                    binding.restaurant,
+                    binding.commerce,
+                    binding.Metro,
+                    binding.pool,
+                    binding.Sport,
+                    listPOI
+                )
                 val apartment = RealEstate(
                     type = type,
-                    description = description.text.toString(),
-                    price = price.text.toString().toInt(),
-                    surface = surface.text.toString().toInt(),
-                    address = address.text.toString(),
+                    description = (binding.editTextDescription.text.toString()),
+                    price = binding.editTextNumberPrice.text.toString().toInt(),
+                    surface = binding.editTextNumberSurface.text.toString().toInt(),
+                    address = binding.editTextAddress.text.toString(),
+                    country = binding.editTextCountry.text.toString(),
+                    city = binding.editTextcity.text.toString(),
+                    zipcode = binding.editTextzipcodeAddress.text.toString().toInt(),
+                    numberStreet = binding.editTextNumberAddress.text.toString().toInt(),
                     iDRealEstateAgent = idAgent,
                     sold = false,
-                    photoReference = imageByte!!,
-                    roomNumber = 2,
+                    photoReference = imageList,
+                    roomNumber = binding.editTextroom.text.toString().toInt(),
                     listPOI = listPOI,
                     dateStart = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-                    dateEnd = null
+                    dateEnd = null,
+                    caption = listCaption,
+                    numberBedroom = if (TextUtils.isEmpty(binding.edittextBedroom.text.toString())) null else binding.edittextBedroom.text.toString()
+                        .toInt(),
+                    numberBathroom = if (TextUtils.isEmpty(binding.edittextBathroom.text.toString())) null else binding.edittextBathroom.text.toString()
+                        .toInt()
                 )
                 realEstateAgentViewModel.insertApartment(apartment)
                 intent = Intent(this, MainActivity::class.java)
@@ -141,46 +139,6 @@ class AddApartmentActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkCheckButton() {
-        if (school.isChecked)
-            listPOI.add(school.text.toString())
-        else if (listPOI.contains(school.text.toString()))
-            listPOI.remove(school.text.toString())
-        if (bus.isChecked)
-            listPOI.add(bus.text.toString())
-        else if (listPOI.contains(bus.text.toString()))
-            listPOI.remove(bus.text.toString())
-        if (pool.isChecked)
-            listPOI.add(pool.text.toString())
-        else if (listPOI.contains(pool.text.toString()))
-            listPOI.remove(pool.text.toString())
-        if (sport.isChecked)
-            listPOI.add(sport.text.toString())
-        else if (listPOI.contains(sport.text.toString()))
-            listPOI.remove(sport.text.toString())
-        if (restaurant.isChecked)
-            listPOI.add(restaurant.text.toString())
-        else if (listPOI.contains(restaurant.text.toString()))
-            listPOI.remove(restaurant.text.toString())
-        if (stadium.isChecked)
-            listPOI.add(stadium.text.toString())
-        else if (listPOI.contains(stadium.text.toString()))
-            listPOI.remove(stadium.text.toString())
-        if (market.isChecked)
-            listPOI.add(market.text.toString())
-        else if (listPOI.contains(market.text.toString()))
-            listPOI.remove(market.text.toString())
-        if (subwyay.isChecked)
-            listPOI.add(subwyay.text.toString())
-        else if (listPOI.contains(subwyay.text.toString()))
-            listPOI.remove(subwyay.text.toString())
-        if (park.isChecked)
-            listPOI.add(park.text.toString())
-        else if (listPOI.contains(park.text.toString()))
-            listPOI.remove(park.text.toString())
-    }
-
-
     private fun handleResponsePic(
         requestCode: Int,
         resultCode: Int,
@@ -189,30 +147,87 @@ class AddApartmentActivity : AppCompatActivity() {
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
                 val bundle = data.extras
-                val bitmap: Bitmap
+                var bitmap: Bitmap?
                 if (bundle?.get("data") != null) {
-                    bitmap = bundle?.get("data") as Bitmap
-                    picture.setImageBitmap(bitmap)
+                    bitmap = bundle.get("data") as Bitmap
+                    buildDialog(bitmap)
                 } else {
-                    chosenPicture = data.data
-                    bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        data.data?.let { ImageDecoder.createSource(contentResolver, it) }
-                            ?.let { ImageDecoder.decodeBitmap(it) }!!
-                    } else {
-                        MediaStore.Images.Media.getBitmap(
-                            contentResolver,
-                            chosenPicture
-                        )
+                    val clipData = data.clipData
+                    if (clipData != null) {
+                        for (i in 0 until clipData.itemCount) {
+                            bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                clipData.getItemAt(i).uri?.let {
+                                    ImageDecoder.createSource(
+                                        contentResolver,
+                                        it
+                                    )
+                                }
+                                    ?.let { ImageDecoder.decodeBitmap(it) }!!
+                            } else {
+                                MediaStore.Images.Media.getBitmap(
+                                    contentResolver,
+                                    clipData.getItemAt(i).uri
+                                )
+                            }
+                            buildDialog(bitmap)
+                        }
                     }
-                    picture.setImageBitmap(bitmap)
                 }
-
-                val objectOutputStream = ByteArrayOutputStream()
-                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, objectOutputStream)
-                imageByte = objectOutputStream.toByteArray()
-
             } else Toast.makeText(this, getString(R.string.no_photo_choosen), Toast.LENGTH_SHORT)
                 .show()
+        }
+    }
+
+    private fun buildDialog(bitmap: Bitmap?) {
+        val dialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_caption_picture, null)
+        dialogBuilder.setView(dialogView)
+        val cancel: Button = dialogView.findViewById(R.id.cancel_dialog_caption)
+        val register: Button = dialogView.findViewById(R.id.save_button_caption)
+        val caption: Spinner = dialogView.findViewById(R.id.spinner_dialog_caption)
+        val mPicture: ImageView = dialogView.findViewById(R.id.imageview_dialog_caption)
+        mPicture.setImageBitmap(bitmap)
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val arrayType: Array<String> = resources.getStringArray(R.array.caption_picture)
+        val mAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item, arrayType
+        )
+        caption.adapter = mAdapter
+
+        caption.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                captionString = arrayType[position]
+            }
+        }
+
+        register.setOnClickListener {
+            imageList = transformUriToString(bitmap, imageList)
+            listCaption = addCaption(captionString, listCaption)
+            buildImageView(
+                bitmap,
+                binding.hiddenScrollviewAddapartment,
+                this,
+                binding.linearlayoutAddapartmentHidden,
+                this
+            )
+            alertDialog.dismiss()
+        }
+        cancel.setOnClickListener {
+            alertDialog.dismiss()
         }
     }
 
@@ -227,20 +242,7 @@ class AddApartmentActivity : AppCompatActivity() {
             )
             return
         }
-
-        val pickImageFileIntent = Intent()
-        pickImageFileIntent.type = "image/*"
-        pickImageFileIntent.action = Intent.ACTION_GET_CONTENT
-
-        val intentPhoto = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        val captureCameraImageIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-
-        val chooserIntent =
-            Intent.createChooser(pickImageFileIntent, "Capture from camera or Select from gallery")
-        chooserIntent.putExtra(
-            Intent.EXTRA_INITIAL_INTENTS,
-            arrayOf(captureCameraImageIntent, intentPhoto)
-        )
+        val chooserIntent = createChooserIntent()
         startActivityForResult(chooserIntent, RC_CHOOSE_PHOTO)
     }
 
@@ -252,6 +254,4 @@ class AddApartmentActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         handleResponsePic(requestCode, resultCode, data!!)
     }
-
-
 }

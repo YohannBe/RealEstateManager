@@ -29,9 +29,17 @@ class RealEstate(
     @ColumnInfo(name = "description")
     var description: String,
     @ColumnInfo(name = "photoReference")
-    var photoReference: ByteArray,
+    var photoReference: ArrayList<String>,
     @ColumnInfo(name = "address")
     var address: String,
+    @ColumnInfo(name = "city")
+    var city: String,
+    @ColumnInfo(name = "country")
+    var country: String,
+    @ColumnInfo(name = "zipcode")
+    var zipcode: Int,
+    @ColumnInfo(name = "numberStreet")
+    var numberStreet: Int,
     @ColumnInfo(name = "sold")
     var sold: Boolean,
     @ColumnInfo(name = "iDRealEstateAgent")
@@ -41,7 +49,13 @@ class RealEstate(
     @ColumnInfo(name = "dateStart")
     var dateStart: String,
     @ColumnInfo(name = "dateEnd")
-    var dateEnd: String?
+    var dateEnd: String?,
+    @ColumnInfo(name = "caption")
+    var caption: ArrayList<String>,
+    @ColumnInfo(name = "numberBedroom")
+    var numberBedroom: Int?,
+    @ColumnInfo(name = "numberBathroom")
+    var numberBathroom: Int?
 ) {
     constructor(
         type: String,
@@ -49,13 +63,20 @@ class RealEstate(
         surface: Int,
         roomNumber: Int,
         description: String,
-        photoReference: ByteArray,
+        photoReference: ArrayList<String>,
         address: String,
+        city: String,
+        country: String,
+        zipcode: Int,
+        numberStreet: Int,
         sold: Boolean,
         iDRealEstateAgent: Int,
         listPOI: ArrayList<String>,
         dateStart: String,
-        dateEnd: String?
+        dateEnd: String?,
+        caption: ArrayList<String>,
+        numberBedroom: Int?,
+        numberBathroom: Int?
     ) :
             this(
                 0,
@@ -66,10 +87,17 @@ class RealEstate(
                 description,
                 photoReference,
                 address,
+                city,
+                country,
+                zipcode,
+                numberStreet,
                 sold,
                 iDRealEstateAgent,
                 listPOI,
                 dateStart,
-                dateEnd
+                dateEnd,
+                caption,
+                numberBedroom,
+                numberBathroom
             )
 }

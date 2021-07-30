@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.utils.SwipeGesture
+import com.example.realestatemanager.view.myInterface.CommunicatorInterface
 import com.example.realestatemanager.view.myInterface.OnButtonClickedListener
 import com.example.realestatemanager.view.myRecyclerView.RecyclerViewAdapterApartment
 import com.example.realestatemanager.viewmodel.Injection
@@ -30,6 +31,7 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
     private lateinit var realEstateViewModel: RealEstateAgentViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var mContext: Context
+    private lateinit var communicatorInterface: CommunicatorInterface
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +40,12 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        communicatorInterface = activity as CommunicatorInterface
         adapter =
             RecyclerViewAdapterApartment(
-                context
+                context,
+                communicatorInterface
             )
-
         mContext = context
 
 
@@ -98,6 +101,7 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
         floatingButton.setOnClickListener(this)
         this.createCallbackToParentActivity()
         initGesture(realEstateViewModel, mContext)
+
     }
 
 

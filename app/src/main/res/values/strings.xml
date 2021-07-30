@@ -20,4 +20,13 @@
         <item>Duplex</item>
         <item>Studio</item>
     </string-array>
+
+    <string-array name="caption_picture">
+        <item>No caption</item>
+        <item>Kitchen</item>
+        <item>Bathroom</item>
+        <item>Salon</item>
+        <item>Bedroom</item>
+        <item>Toilet</item>
+    </string-array>
 </resources>

@@ -13,11 +13,16 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstateAgent
+import com.example.realestatemanager.utils.idRealEstate
+import com.example.realestatemanager.utils.intentIdAgent
+import com.example.realestatemanager.view.fragments.DetailsFragment
 import com.example.realestatemanager.view.fragments.ListApartmentFragment
+import com.example.realestatemanager.view.myInterface.CommunicatorInterface
 import com.example.realestatemanager.view.myInterface.OnButtonClickedListener
 import com.example.realestatemanager.viewmodel.Injection
 import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
@@ -25,7 +30,7 @@ import com.google.android.material.navigation.NavigationView
 import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity(), OnButtonClickedListener,
-    NavigationView.OnNavigationItemSelectedListener {
+    NavigationView.OnNavigationItemSelectedListener, CommunicatorInterface {
 
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
@@ -33,6 +38,8 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
     private var account: RealEstateAgent? = null
     private var id by Delegates.notNull<Int>()
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var currentFragment: Fragment
+    private lateinit var secondFragment: Fragment
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +82,7 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
 
     private fun showMainFragment() {
         val mainFragment = ListApartmentFragment()
+        currentFragment = mainFragment
         supportFragmentManager.beginTransaction()
             .replace(R.id.main_activity_frame_layout, mainFragment)
             .commit()
@@ -136,7 +144,25 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
 
     override fun onButtonClicked(view: View?) {
         val toAddApartmentActivity = Intent(this, AddApartmentActivity::class.java)
-        toAddApartmentActivity.putExtra("idAgent", id)
+        toAddApartmentActivity.putExtra(intentIdAgent, id)
         startActivity(toAddApartmentActivity)
+    }
+
+    override fun passData(input: Int) {
+        val bundle = Bundle()
+        bundle.putInt(idRealEstate, input)
+        val transaction = this.supportFragmentManager.beginTransaction()
+        secondFragment = DetailsFragment()
+        secondFragment.arguments = bundle
+        currentFragment = secondFragment
+        transaction.replace(R.id.main_activity_frame_layout, secondFragment)
+        transaction.commit()
+    }
+
+    override fun onBackPressed(){
+        if (currentFragment == secondFragment)
+            showMainFragment()
+        else
+            finish()
     }
 }
