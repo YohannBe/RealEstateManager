@@ -31,7 +31,9 @@ class RealEstateAgentViewModel(
     }
 
     fun updateMyAgent(vararg realEstateAgent: RealEstateAgent) {
-        realEstateAgentRepository.updateMyAgent(*realEstateAgent)
+        executor.execute {
+            realEstateAgentRepository.updateMyAgent(*realEstateAgent)
+        }
     }
 
     fun getAllApartment(): LiveData<List<RealEstate>> {
@@ -58,12 +60,12 @@ class RealEstateAgentViewModel(
         return realEstateAgentRepository.findExistingMail(mail)
     }
 
-    fun loadRealEstate(id: Int): LiveData<RealEstate>{
+    fun loadRealEstate(id: Int): LiveData<RealEstate> {
         return realEstateRepository.loadRealEstate(id)
     }
 
-    fun updateRealEstate(realEstate: RealEstate){
-        executor.execute{
+    fun updateRealEstate(realEstate: RealEstate) {
+        executor.execute {
             realEstateRepository.updateRealEstate(realEstate)
         }
     }

@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -38,6 +37,7 @@ class AddApartmentActivity : AppCompatActivity() {
     private var captionString: String = ""
     private var imageList: ArrayList<String> = ArrayList()
     private val PERMS = Manifest.permission.READ_EXTERNAL_STORAGE
+    private lateinit var realEstateAgentViewModel: RealEstateAgentViewModel
 
 
     private lateinit var binding: ActivityAddApartmentBinding
@@ -48,7 +48,7 @@ class AddApartmentActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val viewModelFactory = Injection.provideViewModelFactory(this)
-        val realEstateAgentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
+        realEstateAgentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
             RealEstateAgentViewModel::class.java
         )
 
@@ -129,7 +129,10 @@ class AddApartmentActivity : AppCompatActivity() {
                     numberBedroom = if (TextUtils.isEmpty(binding.edittextBedroom.text.toString())) null else binding.edittextBedroom.text.toString()
                         .toInt(),
                     numberBathroom = if (TextUtils.isEmpty(binding.edittextBathroom.text.toString())) null else binding.edittextBathroom.text.toString()
-                        .toInt()
+                        .toInt(),
+                    day = null,
+                    month = null,
+                    year = null
                 )
                 realEstateAgentViewModel.insertApartment(apartment)
                 intent = Intent(this, MainActivity::class.java)
@@ -173,8 +176,7 @@ class AddApartmentActivity : AppCompatActivity() {
                         }
                     }
                 }
-            } else Toast.makeText(this, getString(R.string.no_photo_choosen), Toast.LENGTH_SHORT)
-                .show()
+            }
         }
     }
 
@@ -217,13 +219,20 @@ class AddApartmentActivity : AppCompatActivity() {
         register.setOnClickListener {
             imageList = transformUriToString(bitmap, imageList)
             listCaption = addCaption(captionString, listCaption)
-            buildImageView(
-                bitmap,
-                binding.hiddenScrollviewAddapartment,
-                this,
-                binding.linearlayoutAddapartmentHidden,
-                this
-            )
+            if (bitmap != null) {
+                buildImageView(
+                    bitmap,
+                    binding.hiddenScrollviewAddapartment,
+                    this,
+                    binding.linearlayoutAddapartmentHidden,
+                    this,
+                    null,
+                    false,
+                    null,
+                    null,
+                    null
+                )
+            }
             alertDialog.dismiss()
         }
         cancel.setOnClickListener {
@@ -252,6 +261,9 @@ class AddApartmentActivity : AppCompatActivity() {
         data: Intent?
     ) {
         super.onActivityResult(requestCode, resultCode, data)
-        handleResponsePic(requestCode, resultCode, data!!)
+        if (data != null)
+            handleResponsePic(requestCode, resultCode, data)
+        else
+            Toast.makeText(this, "no photo chosen", Toast.LENGTH_SHORT).show()
     }
 }

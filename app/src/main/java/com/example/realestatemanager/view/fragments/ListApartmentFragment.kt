@@ -2,6 +2,7 @@ package com.example.realestatemanager.view.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +37,10 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Log.e("creation fragment", "ici")
     }
+
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -60,6 +64,8 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
         initElements(view)
         return view
     }
+
+
 
     private fun initGesture(
         realEstateViewModel: RealEstateAgentViewModel?,

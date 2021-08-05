@@ -5,16 +5,20 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
+import android.location.Geocoder
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import android.view.View
-import android.widget.CheckBox
-import android.widget.HorizontalScrollView
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
 import com.example.realestatemanager.R
+import com.example.realestatemanager.model.myObjects.RealEstate
+import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.google.android.gms.maps.model.LatLng
 import java.io.ByteArrayOutputStream
+
 
 fun transformUriToString(bitmap: Bitmap?, imageList: ArrayList<String>): ArrayList<String> {
     val imageByte: ByteArray
@@ -100,13 +104,7 @@ fun checkCheckButton(
     return listPOI
 }
 
-fun createCanvas(photoReference: String, caption: String): Bitmap {
-    val imageByteArray: ByteArray = Base64.decode(photoReference, Base64.DEFAULT)
-    var bitmap = BitmapFactory.decodeByteArray(
-        imageByteArray,
-        0,
-        imageByteArray.size
-    )
+fun createCanvas(bitmap: Bitmap, caption: String): Bitmap {
 
     val paint = Paint()
     paint.color = Color.WHITE
@@ -138,40 +136,84 @@ fun createCanvas(photoReference: String, caption: String): Bitmap {
 
 
 fun buildImageView(
-    bitmap: Bitmap?,
+    bitmap: Bitmap,
     hiddenScrollView: HorizontalScrollView?,
     context: Context,
     hiddenLinearLayout: LinearLayout,
-    activity: Activity
-): LinearLayout {
+    activity: Activity,
+    caption: String?,
+    modification: Boolean,
+    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    realEstate: RealEstate?,
+    photoReference: String?
+) {
     if (hiddenScrollView != null) {
         if (hiddenScrollView.visibility == View.GONE)
             hiddenScrollView.visibility = View.VISIBLE
     }
+
     val imageView = ImageView(context)
     val layoutParams = LinearLayout.LayoutParams(500, 500)
     layoutParams.marginEnd = 20
     imageView.layoutParams = layoutParams
     imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-    imageView.setImageBitmap(bitmap)
+    if (caption != null) {
+        val newBitmap = createCanvas(bitmap, caption)
+        imageView.setImageBitmap(newBitmap)
+    } else
+        imageView.setImageBitmap(bitmap)
     imageView.setOnClickListener {
-        buildDialog(bitmap, activity, context)
+        buildDialog(bitmap, activity, context, modification,realEstateAgentViewModel, realEstate, photoReference, caption)
     }
     hiddenLinearLayout.addView(imageView)
-
-    return hiddenLinearLayout
 }
 
-fun buildDialog(bitmap: Bitmap?, activity: Activity, context: Context) {
-    val dialogBuilder = context?.let { AlertDialog.Builder(it) }
+fun buildDialog(
+    bitmap: Bitmap?,
+    activity: Activity,
+    context: Context,
+    modification: Boolean,
+    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    realEstate: RealEstate?,
+    photoReference: String?,
+    caption: String?
+) {
+    val dialogBuilder = context.let { AlertDialog.Builder(it) }
     val inflater = activity.layoutInflater
     val dialogView = inflater.inflate(R.layout.dialog_picture, null)
-    if (dialogBuilder != null) {
-        dialogBuilder.setView(dialogView)
-        val mImage: ImageView = dialogView.findViewById(R.id.imageview_picture)
-        mImage.setImageBitmap(bitmap)
-        val alertDialog = dialogBuilder.create()
-        alertDialog.show()
-        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    dialogBuilder.setView(dialogView)
+    val mImage: ImageView = dialogView.findViewById(R.id.imageview_picture)
+    val mDeleteCardView: CardView = dialogView.findViewById(R.id.container_delete_pic)
+    val mDeleteButton: Button = dialogView.findViewById(R.id.button_delete_pic)
+    mImage.setImageBitmap(bitmap)
+    if (!modification)
+        mDeleteCardView.visibility = View.GONE
+    else
+        mDeleteCardView.visibility = View.VISIBLE
+
+    val alertDialog = dialogBuilder.create()
+    alertDialog.show()
+    alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    mDeleteButton.setOnClickListener {
+        if (realEstate?.photoReference?.size!! > 1) {
+            realEstate.photoReference.remove(photoReference)
+            realEstate.caption.remove(caption)
+            realEstateAgentViewModel?.updateRealEstate(realEstate)
+            alertDialog.dismiss()
+        } else
+            Toast.makeText(context, "You have to keep at least one picture", Toast.LENGTH_SHORT).show()
     }
 }
+
+fun getLocationByAddress(context: Context, strAddress: String?): LatLng? {
+    val coder = Geocoder(context)
+    try {
+        val address = coder.getFromLocationName(strAddress, 1) ?: return null
+        val location = address.first()
+        return LatLng(location.latitude, location.longitude)
+    } catch (e: Exception) {
+        Log.d("GeoCoder exception", e.toString())
+    }
+    return null
+}
+

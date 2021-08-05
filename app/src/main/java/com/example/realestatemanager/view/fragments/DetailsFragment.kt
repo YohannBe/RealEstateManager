@@ -1,30 +1,34 @@
 package com.example.realestatemanager.view.fragments
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Base64
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.example.realestatemanager.R
+import com.example.realestatemanager.databinding.ActivityAddApartmentBinding
+import com.example.realestatemanager.databinding.DialogSoldBinding
 import com.example.realestatemanager.databinding.FragmentDetailsBinding
 import com.example.realestatemanager.model.myObjects.RealEstate
-import com.example.realestatemanager.utils.buildImageView
-import com.example.realestatemanager.utils.checkCheckButton
-import com.example.realestatemanager.utils.createCanvas
-import com.example.realestatemanager.utils.idRealEstate
+import com.example.realestatemanager.utils.*
 import com.example.realestatemanager.viewmodel.Injection
 import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlin.collections.ArrayList
 
 class DetailsFragment : Fragment() {
@@ -36,12 +40,45 @@ class DetailsFragment : Fragment() {
     private var type: String = ""
     private var listPOI = ArrayList<String>()
     private var first = true
+    private var imageList: ArrayList<String> = ArrayList()
+    private var captionString: String = ""
+    private var listCaption = ArrayList<String>()
+    private lateinit var mRealEstate: RealEstate
+    private lateinit var mActivity: Activity
+    private val rotateOpen: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            mContext,
+            R.anim.rotate_open_anim
+        )
+    }
+    private val rotateClose: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            mContext,
+            R.anim.rotate_close_anim
+        )
+    }
+    private val fromBottom: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            mContext,
+            R.anim.from_bottom_anim
+        )
+    }
+    private val toBottom: Animation by lazy {
+        AnimationUtils.loadAnimation(
+            mContext,
+            R.anim.from_upp_anim
+        )
+    }
+    private var clicked = false
 
     private lateinit var binding: FragmentDetailsBinding
+    private lateinit var bindingDialog: ActivityAddApartmentBinding
+    private lateinit var bindingSold: DialogSoldBinding
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
+        mActivity = this.requireActivity()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,13 +91,17 @@ class DetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDetailsBinding.inflate(layoutInflater)
-        idRealEstateRetrieved = arguments?.getInt(idRealEstate)!!
+        if (arguments?.getInt(idRealEstate) != null) {
+            idRealEstateRetrieved = arguments?.getInt(idRealEstate)!!
+        } else Toast.makeText(mContext, "nope", Toast.LENGTH_SHORT).show()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initElements()
+        if (idRealEstateRetrieved != -1) {
+            initElements()
+        }
     }
 
     private fun initElements() {
@@ -70,10 +111,13 @@ class DetailsFragment : Fragment() {
             )
         }!!
 
+
         realEstateViewModel.loadRealEstate(idRealEstateRetrieved)
             .observe(requireActivity(), Observer {
                 if (it != null) {
-                    val mRealEstate = it
+                    mRealEstate = it
+                    imageList = mRealEstate.photoReference
+                    listCaption = mRealEstate.caption
                     val fAddress = it.numberStreet.toString() + " " + it.address
                     binding.addressTextviewDetails.text = fAddress
                     binding.addressCountryTextviewDetails.text = it.country
@@ -106,7 +150,7 @@ class DetailsFragment : Fragment() {
                     Glide.with(mContext)
                         .load(
                             "https://maps.googleapis.com/maps/api/staticmap?markers=size:mid%7Ccolor:red%7C" + it.numberStreet + "+" + concenateAddress
-                                    + "+" + it.country + "&zoom=20&size=500x500&maptype=roadmap&key=" + resources.getString(
+                                    + "+" + it.country + "&zoom=20&size=500x500&maptype=roadmap&key=" + mActivity.resources.getString(
                                 R.string.google_maps_key
                             )
                         )
@@ -114,63 +158,231 @@ class DetailsFragment : Fragment() {
                         .into(binding.imageviewMapsDetail)
 
 
-                    if (first)
-                        buildImages(it.photoReference, it.caption)
+                    binding.linearlayoutDetailapartment.removeAllViewsInLayout()
 
-                    first = false
-                    binding.modifyFloatingbutton.setOnClickListener { modifyRealEstate(mRealEstate) }
+                    buildImages(
+                        it.photoReference,
+                        it.caption,
+                        null,
+                        binding.linearlayoutDetailapartment,
+                        false,
+                        null,
+                        null
+                    )
+
+
+                    binding.modifyFloatingbutton.setOnClickListener { updateFloating() }
+                    binding.changesFloatingbutton.setOnClickListener {
+                        modifyRealEstate(mRealEstate)
+                        updateFloating()
+                    }
+                    binding.soldFloatingbutton.setOnClickListener {
+                        addDateSold(mRealEstate)
+                        updateFloating()
+                    }
+                    binding.photoFloatingbutton.setOnClickListener {
+                        addPhoto()
+                        updateFloating()
+                    }
+                    binding.screenTransparent.setOnClickListener { binding.modifyFloatingbutton.callOnClick() }
                 }
             })
     }
 
-    private fun modifyRealEstate(mRealEstate: RealEstate) {
-        val dialogBuilder = context?.let { AlertDialog.Builder(it) }
+    private fun addPhoto() {
+        val chooserIntent = createChooserIntent()
+        startActivityForResult(chooserIntent, RC_CHOOSE_PHOTO)
+    }
+
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (data != null)
+            handleResponsePic(requestCode, resultCode, data)
+        else
+            Toast.makeText(mContext, "no photo chosen", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleResponsePic(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent
+    ) {
+        if (requestCode == RC_CHOOSE_PHOTO) {
+            if (resultCode == Activity.RESULT_OK) {
+                val bundle = data.extras
+                var bitmap: Bitmap?
+                if (bundle?.get("data") != null) {
+                    bitmap = bundle.get("data") as Bitmap
+                    buildDialog(bitmap)
+                } else {
+                    val clipData = data.clipData
+                    if (clipData != null) {
+                        for (i in 0 until clipData.itemCount) {
+                            bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                clipData.getItemAt(i).uri?.let {
+                                    ImageDecoder.createSource(
+                                        mContext.contentResolver,
+                                        it
+                                    )
+                                }
+                                    ?.let { ImageDecoder.decodeBitmap(it) }!!
+                            } else {
+                                MediaStore.Images.Media.getBitmap(
+                                    mContext.contentResolver,
+                                    clipData.getItemAt(i).uri
+                                )
+                            }
+                            buildDialog(bitmap)
+                        }
+                    }
+                }
+            } else Toast.makeText(
+                mContext,
+                getString(R.string.no_photo_choosen),
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+    }
+
+    private fun buildDialog(bitmap: Bitmap?) {
+        val dialogBuilder = AlertDialog.Builder(mContext)
         val inflater = this.layoutInflater
-        val dialogView = inflater.inflate(R.layout.activity_add_apartment, null)
+        val dialogView = inflater.inflate(R.layout.dialog_caption_picture, null)
+        dialogBuilder.setView(dialogView)
+        val cancel: Button = dialogView.findViewById(R.id.cancel_dialog_caption)
+        val register: Button = dialogView.findViewById(R.id.save_button_caption)
+        val caption: Spinner = dialogView.findViewById(R.id.spinner_dialog_caption)
+        val mPicture: ImageView = dialogView.findViewById(R.id.imageview_dialog_caption)
+        mPicture.setImageBitmap(bitmap)
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val arrayType: Array<String> =
+            requireActivity().resources.getStringArray(R.array.caption_picture)
+        val mAdapter = ArrayAdapter(
+            mContext,
+            android.R.layout.simple_spinner_item, arrayType
+        )
+        caption.adapter = mAdapter
+
+        caption.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                captionString = arrayType[position]
+            }
+        }
+
+        register.setOnClickListener {
+            imageList = transformUriToString(bitmap, imageList)
+            listCaption = addCaption(captionString, listCaption)
+            if (bitmap != null) {
+                mRealEstate.photoReference = imageList
+                mRealEstate.caption = listCaption
+                realEstateViewModel.updateRealEstate(mRealEstate)
+            }
+            alertDialog.dismiss()
+        }
+        cancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
+    }
+
+    private fun updateFloating() {
+
+        setVisibility(clicked)
+        setAnimation(clicked)
+        clicked = !clicked
+
+    }
+
+    private fun setVisibility(clicked: Boolean) {
+        if (!clicked) {
+            binding.changesFloatingbutton.visibility = View.VISIBLE
+            binding.soldFloatingbutton.visibility = View.VISIBLE
+            binding.photoFloatingbutton.visibility = View.VISIBLE
+            binding.screenTransparent.visibility = View.VISIBLE
+        } else {
+            binding.changesFloatingbutton.visibility = View.INVISIBLE
+            binding.soldFloatingbutton.visibility = View.INVISIBLE
+            binding.photoFloatingbutton.visibility = View.INVISIBLE
+            binding.screenTransparent.visibility = View.GONE
+        }
+    }
+
+    private fun setAnimation(clicked: Boolean) {
+        if (!clicked) {
+            binding.modifyFloatingbutton.startAnimation(rotateOpen)
+            binding.soldFloatingbutton.startAnimation(fromBottom)
+            binding.changesFloatingbutton.startAnimation(fromBottom)
+            binding.photoFloatingbutton.startAnimation(fromBottom)
+        } else {
+            binding.modifyFloatingbutton.startAnimation(rotateClose)
+            binding.soldFloatingbutton.startAnimation(toBottom)
+            binding.changesFloatingbutton.startAnimation(toBottom)
+            binding.photoFloatingbutton.startAnimation(toBottom)
+        }
+    }
+
+    private fun addDateSold(mRealEstate: RealEstate) {
+        val dialogBuilder = context?.let { AlertDialog.Builder(it) }
+        bindingSold = DialogSoldBinding.inflate(LayoutInflater.from(mContext))
+        val dialogView = bindingSold.root
+
         if (dialogBuilder != null) {
             dialogBuilder.setView(dialogView)
-            val description: EditText = dialogView.findViewById(R.id.editTextDescription)
-            val price: EditText = dialogView.findViewById(R.id.editTextNumberPrice)
-            val surface: EditText = dialogView.findViewById(R.id.editTextNumberSurface)
-            val address: EditText = dialogView.findViewById(R.id.editTextAddress)
-            val numberAddress: EditText = dialogView.findViewById(R.id.editTextNumberAddress)
-            val cityAddress: EditText = dialogView.findViewById(R.id.editTextcity)
-            val zipCodeAddress: EditText = dialogView.findViewById(R.id.editTextzipcodeAddress)
-            val countryAddress: EditText = dialogView.findViewById(R.id.editTextCountry)
-            val picture: ImageView = dialogView.findViewById(R.id.imageview_apartment)
+            val alertDialog = dialogBuilder.create()
+            alertDialog.show()
+            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            bindingSold.cancelButtonDialogSold.setOnClickListener {
+                alertDialog.dismiss()
+            }
+            bindingSold.saveButtonDialogSold.setOnClickListener {
+                mRealEstate.sold = true
+                mRealEstate.day = bindingSold.calendarSoldApartment.dayOfMonth
+                mRealEstate.month = bindingSold.calendarSoldApartment.month
+                mRealEstate.year = bindingSold.calendarSoldApartment.year
+                realEstateViewModel.updateRealEstate(mRealEstate)
+                alertDialog.dismiss()
+            }
+        }
+    }
+
+    private fun modifyRealEstate(mRealEstate: RealEstate) {
+        val dialogBuilder = context?.let { AlertDialog.Builder(it) }
+        bindingDialog = ActivityAddApartmentBinding.inflate(LayoutInflater.from(mContext))
+        val dialogView = bindingDialog.root
+        if (dialogBuilder != null) {
+            dialogBuilder.setView(dialogView)
             val spinner: Spinner = dialogView.findViewById(R.id.spinner_type)
-            val school: CheckBox = dialogView.findViewById(R.id.school)
-            val park: CheckBox = dialogView.findViewById(R.id.parc)
-            val bus: CheckBox = dialogView.findViewById(R.id.Bus)
-            val stadium: CheckBox = dialogView.findViewById(R.id.Stadium)
-            val sport: CheckBox = dialogView.findViewById(R.id.Sport)
-            val pool: CheckBox = dialogView.findViewById(R.id.pool)
-            val subwyay: CheckBox = dialogView.findViewById(R.id.Metro)
-            val restaurant: CheckBox = dialogView.findViewById(R.id.restaurant)
-            val market: CheckBox = dialogView.findViewById(R.id.commerce)
-            val roomNumber: EditText = dialogView.findViewById(R.id.editTextroom)
-            val hiddenScrollView: HorizontalScrollView =
-                dialogView.findViewById(R.id.hiddenScrollview_addapartment)
-            val hiddenLinearLayout: LinearLayout =
-                dialogView.findViewById(R.id.linearlayout_addapartment_hidden)
-            val bathroomNumber: EditText = dialogView.findViewById(R.id.edittext_bathroom)
-            val bedroomNumber: EditText = dialogView.findViewById(R.id.edittext_bedroom)
-            val updateButton: Button = dialogView.findViewById(R.id.button_save_apartment)
 
-            description.setText(mRealEstate.description)
-            surface.setText(mRealEstate.surface.toString())
-            price.setText(mRealEstate.price.toString())
-            address.setText(mRealEstate.address)
-            cityAddress.setText(mRealEstate.city)
-            numberAddress.setText(mRealEstate.numberStreet.toString())
-            zipCodeAddress.setText(mRealEstate.zipcode.toString())
-            countryAddress.setText(mRealEstate.country)
-            roomNumber.setText(mRealEstate.roomNumber.toString())
-            mRealEstate.numberBedroom?.let { bedroomNumber.setText(it.toString()) }
-            mRealEstate.numberBathroom?.let { bathroomNumber.setText(it.toString()) }
-            updateButton.text = "Update"
+            bindingDialog.editTextDescription.setText(mRealEstate.description)
+            bindingDialog.editTextNumberSurface.setText(mRealEstate.surface.toString())
+            bindingDialog.editTextNumberPrice.setText(mRealEstate.price.toString())
+            bindingDialog.editTextAddress.setText(mRealEstate.address)
+            bindingDialog.editTextcity.setText(mRealEstate.city)
+            bindingDialog.editTextNumberAddress.setText(mRealEstate.numberStreet.toString())
+            bindingDialog.editTextzipcodeAddress.setText(mRealEstate.zipcode.toString())
+            bindingDialog.editTextCountry.setText(mRealEstate.country)
+            bindingDialog.editTextroom.setText(mRealEstate.roomNumber.toString())
+            mRealEstate.numberBedroom?.let { bindingDialog.edittextBedroom.setText(it.toString()) }
+            mRealEstate.numberBathroom?.let { bindingDialog.edittextBathroom.setText(it.toString()) }
+            bindingDialog.buttonSaveApartment.text = "Update"
 
-            val arrayType: Array<String> = resources.getStringArray(R.array.type)
+            val arrayType: Array<String> = requireActivity().resources.getStringArray(R.array.type)
             val adapter = context?.let {
                 ArrayAdapter(
                     it,
@@ -195,58 +407,78 @@ class DetailsFragment : Fragment() {
 
             }
 
+            bindingDialog.imageviewApartment.visibility = View.GONE
+            realEstateViewModel.loadRealEstate(mRealEstate.id).observe(requireActivity(), Observer {
+                if (it != null) {
+                    bindingDialog.linearlayoutAddapartmentHidden.removeAllViewsInLayout()
+                    buildImages(
+                        it.photoReference,
+                        it.caption,
+                        bindingDialog.hiddenScrollviewAddapartment,
+                        bindingDialog.linearlayoutAddapartmentHidden,
+                        true,
+                        realEstateViewModel,
+                        it
+                    )
+                }
+            })
+
+
             for (poi in mRealEstate.listPOI) {
                 when (poi) {
-                    "school" -> school.isChecked = true
-                    "parc" -> park.isChecked = true
-                    "Bus" -> bus.isChecked = true
-                    "Stadium" -> stadium.isChecked = true
-                    "Sport club" -> sport.isChecked = true
-                    "Pool" -> pool.isChecked = true
-                    "Metro" -> subwyay.isChecked = true
-                    "restaurant" -> restaurant.isChecked = true
-                    "commerce" -> market.isChecked = true
+                    "school" -> bindingDialog.school.isChecked = true
+                    "parc" -> bindingDialog.parc.isChecked = true
+                    "Bus" -> bindingDialog.Bus.isChecked = true
+                    "Stadium" -> bindingDialog.Stadium.isChecked = true
+                    "Sport club" -> bindingDialog.Sport.isChecked = true
+                    "Pool" -> bindingDialog.pool.isChecked = true
+                    "Metro" -> bindingDialog.Metro.isChecked = true
+                    "restaurant" -> bindingDialog.restaurant.isChecked = true
+                    "commerce" -> bindingDialog.commerce.isChecked = true
                 }
             }
             val alertDialog = dialogBuilder.create()
             alertDialog.show()
 
-            updateButton.setOnClickListener {
+            bindingDialog.buttonSaveApartment.setOnClickListener {
                 listPOI = checkCheckButton(
-                    school,
-                    park,
-                    bus,
-                    stadium,
-                    restaurant,
-                    market,
-                    subwyay,
-                    pool,
-                    sport,
+                    bindingDialog.school,
+                    bindingDialog.parc,
+                    bindingDialog.Bus,
+                    bindingDialog.Stadium,
+                    bindingDialog.restaurant,
+                    bindingDialog.commerce,
+                    bindingDialog.Metro,
+                    bindingDialog.pool,
+                    bindingDialog.Sport,
                     listPOI
                 )
                 val apartment = RealEstate(
                     id = mRealEstate.id,
                     type = type,
-                    description = description.text.toString(),
-                    price = price.text.toString().toInt(),
-                    surface = surface.text.toString().toInt(),
-                    address = address.text.toString(),
-                    country = countryAddress.text.toString(),
-                    city = cityAddress.text.toString(),
-                    zipcode = zipCodeAddress.text.toString().toInt(),
-                    numberStreet = numberAddress.text.toString().toInt(),
+                    description = bindingDialog.editTextDescription.text.toString(),
+                    price = bindingDialog.editTextNumberPrice.text.toString().toInt(),
+                    surface = bindingDialog.editTextNumberSurface.text.toString().toInt(),
+                    address = bindingDialog.editTextAddress.text.toString(),
+                    country = bindingDialog.editTextCountry.text.toString(),
+                    city = bindingDialog.editTextcity.text.toString(),
+                    zipcode = bindingDialog.editTextzipcodeAddress.text.toString().toInt(),
+                    numberStreet = bindingDialog.editTextNumberAddress.text.toString().toInt(),
                     iDRealEstateAgent = mRealEstate.iDRealEstateAgent,
                     sold = false,
                     photoReference = mRealEstate.photoReference,
-                    roomNumber = roomNumber.text.toString().toInt(),
+                    roomNumber = bindingDialog.editTextroom.text.toString().toInt(),
                     listPOI = listPOI,
                     dateStart = mRealEstate.dateStart,
                     dateEnd = null,
                     caption = mRealEstate.caption,
-                    numberBedroom = if (TextUtils.isEmpty(bedroomNumber.text.toString())) null else bedroomNumber.text.toString()
+                    numberBedroom = if (TextUtils.isEmpty(bindingDialog.edittextBedroom.text.toString())) null else bindingDialog.edittextBedroom.text.toString()
                         .toInt(),
-                    numberBathroom = if (TextUtils.isEmpty(bathroomNumber.text.toString())) null else bathroomNumber.text.toString()
-                        .toInt()
+                    numberBathroom = if (TextUtils.isEmpty(bindingDialog.edittextBathroom.text.toString())) null else bindingDialog.edittextBathroom.text.toString()
+                        .toInt(),
+                    day = mRealEstate.day,
+                    month = mRealEstate.month,
+                    year = mRealEstate.year
                 )
                 realEstateViewModel.updateRealEstate(apartment)
                 alertDialog.dismiss()
@@ -257,24 +489,33 @@ class DetailsFragment : Fragment() {
 
     private fun buildImages(
         photoReference: ArrayList<String>,
-        caption: ArrayList<String>
+        caption: ArrayList<String>,
+        hiddenScrollView: HorizontalScrollView?,
+        linearLayout: LinearLayout,
+        modification: Boolean,
+        realEstateAgentViewModel: RealEstateAgentViewModel?,
+        realEstate: RealEstate?
     ) {
         for (i in 0 until photoReference.size) {
             val imageByteArray: ByteArray = Base64.decode(photoReference[i], Base64.DEFAULT)
-            var bitmap = BitmapFactory.decodeByteArray(
+            val bitmap = BitmapFactory.decodeByteArray(
                 imageByteArray,
                 0,
                 imageByteArray.size
             )
-
             context?.let {
                 activity?.let { it1 ->
                     buildImageView(
                         bitmap,
-                        null,
+                        hiddenScrollView,
                         it,
-                        binding.linearlayoutDetailapartment,
-                        it1
+                        linearLayout,
+                        it1,
+                        caption[i],
+                        modification,
+                        realEstateAgentViewModel,
+                        realEstate,
+                        photoReference[i]
                     )
                 }
 
@@ -282,17 +523,5 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun buildDialog(bitmap: Bitmap?) {
-        val dialogBuilder = context?.let { AlertDialog.Builder(it) }
-        val inflater = this.layoutInflater
-        val dialogView = inflater.inflate(R.layout.dialog_picture, null)
-        if (dialogBuilder != null) {
-            dialogBuilder.setView(dialogView)
-            val mImage: ImageView = dialogView.findViewById(R.id.imageview_picture)
-            mImage.setImageBitmap(bitmap)
-            val alertDialog = dialogBuilder.create()
-            alertDialog.show()
-            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
-    }
+
 }

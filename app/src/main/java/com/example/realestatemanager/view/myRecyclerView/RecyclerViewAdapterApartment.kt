@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.view.myInterface.CommunicatorInterface
-import java.nio.charset.Charset
+import java.lang.StringBuilder
 
 class RecyclerViewAdapterApartment(
     context: Context,
@@ -51,7 +51,8 @@ class RecyclerViewAdapterApartment(
         holder.address.text = data[position].address
         holder.price.text = "$ " + data[position].price.toString()
         holder.type.text = data[position].type
-        val imageByteArray: ByteArray = Base64.decode(data[position].photoReference[0], Base64.DEFAULT)
+        val imageByteArray: ByteArray =
+            Base64.decode(data[position].photoReference[0], Base64.DEFAULT)
         holder.pic.setImageBitmap(
             BitmapFactory.decodeByteArray(
                 imageByteArray,
@@ -62,7 +63,22 @@ class RecyclerViewAdapterApartment(
         holder.parent.setOnClickListener {
             communicatorInterface.passData(data[position].id)
         }
+        if (data[position].sold) {
+            holder.sold.visibility = View.VISIBLE
+            holder.dateSold.visibility = View.VISIBLE
+            val day: String = if (data[position].day!! <10) "0" + data[position].day.toString() else data[position].day.toString()
+            val actualMonth = data[position].month?.plus(1)
+            val month: String = if (actualMonth!! <10) "0$actualMonth" else actualMonth.toString()
+            val date =day +"/" + month+"/" + data[position].year.toString()
+            holder.dateSold.text = date
+        }
+
+        else {
+            holder.sold.visibility = View.GONE
+            holder.dateSold.visibility = View.GONE
+        }
     }
+
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val pic: ImageView = itemView.findViewById(R.id.image_apartment)
@@ -70,5 +86,7 @@ class RecyclerViewAdapterApartment(
         val price: TextView = itemView.findViewById(R.id.textView_price_apartment)
         val type: TextView = itemView.findViewById(R.id.textView_item_apartment)
         val parent: LinearLayout = itemView.findViewById(R.id.layout_appartment)
+        val sold: ImageView = itemView.findViewById(R.id.sold_imageview)
+        val dateSold: TextView = itemView.findViewById(R.id.date_sold_text)
     }
 }

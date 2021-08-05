@@ -42,6 +42,12 @@ class RealEstate(
     var numberStreet: Int,
     @ColumnInfo(name = "sold")
     var sold: Boolean,
+    @ColumnInfo(name = "day")
+    var day: Int?,
+    @ColumnInfo(name = "month")
+    var month: Int?,
+    @ColumnInfo(name = "year")
+    var year: Int?,
     @ColumnInfo(name = "iDRealEstateAgent")
     var iDRealEstateAgent: Int,
     @ColumnInfo(name = "listPOI")
@@ -76,7 +82,10 @@ class RealEstate(
         dateEnd: String?,
         caption: ArrayList<String>,
         numberBedroom: Int?,
-        numberBathroom: Int?
+        numberBathroom: Int?,
+        day: Int?,
+        month: Int?,
+        year: Int?
     ) :
             this(
                 0,
@@ -92,6 +101,9 @@ class RealEstate(
                 zipcode,
                 numberStreet,
                 sold,
+                day,
+                month,
+                year,
                 iDRealEstateAgent,
                 listPOI,
                 dateStart,

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_fragments"
+    app:startDestination="@id/page_1">
+
+    <fragment
+        android:id="@+id/page_1"
+        android:name="com.example.realestatemanager.view.fragments.ListApartmentFragment"
+        android:label="fragment_list_appartment"
+        tools:layout="@layout/fragment_list_appartment" >
+        <action
+            android:id="@+id/action_page_1_to_detailsFragment2"
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_page_1_to_page_2"
+            app:destination="@id/page_2"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/page_2"
+        android:name="com.example.realestatemanager.view.fragments.MapsFragment"
+        android:label="fragment_maps"
+        tools:layout="@layout/fragment_maps" >
+        <action
+            android:id="@+id/action_page_2_to_detailsFragment2"
+            app:destination="@id/detailsFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_page_2_to_page_1"
+            app:destination="@id/page_1"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.realestatemanager.view.fragments.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" />
+</navigation>
