@@ -1,5 +1,4 @@
-package com.example.realestatemanager.viewmodel
-
+package com.example.realestatemanager.viewmodel.mainActivity
 
 import android.os.Bundle
 import androidx.lifecycle.LiveData
@@ -11,32 +10,13 @@ import com.example.realestatemanager.model.repositories.RealEstateAgentRepositor
 import com.example.realestatemanager.model.repositories.RealEstateRepository
 import java.util.concurrent.Executor
 
-
-class RealEstateAgentViewModel(
+class MainActivityViewModel(
     private val realEstateAgentRepository: RealEstateAgentRepository,
     private val realEstateRepository: RealEstateRepository,
     private val executor: Executor
 ) : ViewModel() {
 
-    fun insertAgent(realEstateAgent: RealEstateAgent) {
-        executor.execute {
-            realEstateAgentRepository.insertAgents(realEstateAgent)
-        }
-    }
-
-    fun getMyAgent(id: Int): LiveData<RealEstateAgent> {
-        return realEstateAgentRepository.getMyAgent(id)
-    }
-
-    fun deleteMyAgent(realEstateAgent: RealEstateAgent) {
-        realEstateAgentRepository.deleteMyAgent(realEstateAgent)
-    }
-
-    fun updateMyAgent(vararg realEstateAgent: RealEstateAgent) {
-        executor.execute {
-            realEstateAgentRepository.updateMyAgent(*realEstateAgent)
-        }
-    }
+    private var filterLiveData: MutableLiveData<Bundle> = MutableLiveData()
 
     fun getAllApartment(): LiveData<List<RealEstate>> {
         return realEstateRepository.loadAllRealEstate()
@@ -48,30 +28,31 @@ class RealEstateAgentViewModel(
         }
     }
 
-    fun loadRealEstateAgentAccount(mail: String, password: String): LiveData<RealEstateAgent> {
-        return realEstateAgentRepository.loadRealEstateAgentAccount(mail, password)
+    fun getMyAgent(id: Int): LiveData<RealEstateAgent> {
+        return realEstateAgentRepository.getMyAgent(id)
     }
-
-    fun findExistingMail(mail: String): LiveData<String> {
-        return realEstateAgentRepository.findExistingMail(mail)
-    }
-
-    fun loadRealEstate(id: Int): LiveData<RealEstate> {
-        return realEstateRepository.loadRealEstate(id)
-    }
-
-    fun updateRealEstate(realEstate: RealEstate) {
-        executor.execute {
-            realEstateRepository.updateRealEstate(realEstate)
-        }
-    }
-
-    private var filterLiveData: MutableLiveData<Bundle> = MutableLiveData()
 
     fun getFilter(): LiveData<Bundle> {
         return filterLiveData
     }
 
+    fun passFilter(
+        filter: Boolean,
+        listFilter: HashMap<String, String>?,
+        priceFrom: Int,
+        priceTo: Int,
+        surfaceFrom: Int,
+        surfaceTo: Int,
+    ) {
+        val bundle = Bundle()
+        bundle.putBoolean("filterPut", filter)
+        bundle.putSerializable("mapFilter", listFilter)
+        bundle.putInt("priceFrom", priceFrom)
+        bundle.putInt("priceTo", priceTo)
+        bundle.putInt("surfaceFrom", surfaceFrom)
+        bundle.putInt("surfaceTo", surfaceTo)
+        filterLiveData.postValue(bundle)
+    }
 
     fun updateListFilter(
         bundle: Bundle,

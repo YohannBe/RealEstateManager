@@ -7,6 +7,7 @@
     <color name="colorSecondary">#3e2723</color>
     <color name="colorSecondaryDark">#1b0000</color>
     <color name="colorSecondaryLight">#6a4f4b</color>
+    <color name="colorSecondaryChip">#b5adac</color>
     <color name="colorText">#FFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>

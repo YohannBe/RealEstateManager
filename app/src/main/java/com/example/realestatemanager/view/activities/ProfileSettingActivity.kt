@@ -8,54 +8,59 @@ import android.widget.EditText
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.realestatemanager.R
+import com.example.realestatemanager.databinding.ActivityProfileSettingBinding
 import com.example.realestatemanager.model.myObjects.RealEstateAgent
 import com.example.realestatemanager.viewmodel.Injection
 import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
 
 class ProfileSettingActivity : AppCompatActivity() {
 
-    private lateinit var firstName: EditText
-    private lateinit var lastName: EditText
-    private lateinit var pMail: EditText
-    private lateinit var pPassword: EditText
-    private lateinit var register: Button
-    private lateinit var realEstateAgentViewModel: RealEstateAgentViewModel
-
+    private lateinit var binding: ActivityProfileSettingBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_profile_setting)
+        binding = ActivityProfileSettingBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        val viewModelFactory = Injection.provideViewModelFactory(this)
-        realEstateAgentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
-            RealEstateAgentViewModel::class.java
-        )
+        val realEstateAgentViewModel = initViewModel()
 
-        firstName = findViewById(R.id.firstname_edittext)
-        lastName = findViewById(R.id.lastname_edittext)
-        pMail = findViewById(R.id.mail_edittext)
-        pPassword = findViewById(R.id.password_edittext)
+        initElements()
 
+        binding.finishRegisterButton.setOnClickListener {
+            val agent = RealEstateAgent(
+                binding.firstnameEdittext.text.toString(),
+                binding.lastnameEdittext.text.toString(),
+                binding.passwordEdittext.text.toString(),
+                binding.mailEdittext.text.toString()
+            )
+            realEstateAgentViewModel.insertAgent(agent)
+            realEstateAgentViewModel.loadRealEstateAgentAccount(
+                binding.mailEdittext.text.toString(),
+                binding.passwordEdittext.text.toString()
+            ).observe(this,
+                {
+                    if (it != null) {
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.putExtra("account", it.id)
+                        startActivity(intent)
+                        finish()
+                    }
+                })
+        }
+    }
+
+    private fun initElements() {
         val mail = intent.getStringExtra("mail")
         val password = intent.getStringExtra("password")
+        binding.mailEdittext.setText(mail)
+        binding.passwordEdittext.setText(password)
+    }
 
-        pMail.setText(mail)
-        pPassword.setText(password)
-
-        register = findViewById(R.id.finish_register_button)
-
-        register.setOnClickListener{
-            val agent =RealEstateAgent(firstName.text.toString(), lastName.text.toString(), pPassword.text.toString(), pMail.text.toString())
-            realEstateAgentViewModel.insertAgent(agent)
-            realEstateAgentViewModel.loadRealEstateAgentAccount(pMail.text.toString() ,pPassword.text.toString()).observe(this, Observer {
-                if (it != null) {
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.putExtra("account", it.id)
-                    startActivity(intent)
-                    finish()
-                }
-            })
-        }
-
+    private fun initViewModel(): RealEstateAgentViewModel {
+        val viewModelFactory = Injection.provideViewModelFactory(this)
+        return ViewModelProviders.of(this, viewModelFactory).get(
+            RealEstateAgentViewModel::class.java
+        )
     }
 }

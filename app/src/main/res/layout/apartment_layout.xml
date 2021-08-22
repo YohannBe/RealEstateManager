@@ -28,15 +28,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/date_sold_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toStartOf="@id/sold_imageview"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:visibility="gone"/>
-
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardview_imageview_holder"
                 android:layout_width="wrap_content"

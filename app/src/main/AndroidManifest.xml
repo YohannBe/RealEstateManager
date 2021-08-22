@@ -8,6 +8,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -22,7 +23,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RealEstateManager">
         <activity android:name=".view.activities.SettingActivity"></activity>
-        <activity android:name=".view.activities.DetailsActivity" />
+        <activity android:name=".view.activities.DetailsActivity"
+            android:parentActivityName=".view.activities.MainActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -45,6 +47,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".notification.NotificationSuccess" />
     </application>
 
 </manifest>

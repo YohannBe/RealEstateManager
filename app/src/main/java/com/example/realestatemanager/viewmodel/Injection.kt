@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.realestatemanager.model.mDatabase.MDataBase
 import com.example.realestatemanager.model.repositories.RealEstateAgentRepository
 import com.example.realestatemanager.model.repositories.RealEstateRepository
+import com.example.realestatemanager.viewmodel.addApartment.AddApartmentViewModelFactory
+import com.example.realestatemanager.viewmodel.mainActivity.MainActivityViewModelFactory
 
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -30,6 +32,19 @@ class Injection {
             val realEstateRepository = providerApartmentData(context)
             val executor = providerExecutor()
             return RealEstateAgentViewModelFactory(realEstateAgentRepository, realEstateRepository, executor)
+        }
+
+        fun provideAddApartmentViewModel(context: Context): AddApartmentViewModelFactory {
+            val realEstateRepository = providerApartmentData(context)
+            val executor = providerExecutor()
+            return AddApartmentViewModelFactory(realEstateRepository, executor)
+        }
+
+        fun provideMainActivityViewModelFactory(context: Context): MainActivityViewModelFactory {
+            val realEstateAgentRepository = providerAgentData(context)
+            val realEstateRepository = providerApartmentData(context)
+            val executor = providerExecutor()
+            return MainActivityViewModelFactory(realEstateAgentRepository, realEstateRepository, executor)
         }
     }
 }

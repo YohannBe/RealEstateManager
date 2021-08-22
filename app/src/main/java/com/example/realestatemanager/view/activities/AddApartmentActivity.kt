@@ -2,6 +2,9 @@ package com.example.realestatemanager.view.activities
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -11,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -19,9 +23,10 @@ import androidx.lifecycle.ViewModelProviders
 import com.example.realestatemanager.R
 import com.example.realestatemanager.databinding.ActivityAddApartmentBinding
 import com.example.realestatemanager.model.myObjects.RealEstate
+import com.example.realestatemanager.notification.NotificationSuccess
 import com.example.realestatemanager.utils.*
+import com.example.realestatemanager.viewmodel.addApartment.AddApartmentViewModel
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 import java.text.SimpleDateFormat
@@ -37,7 +42,8 @@ class AddApartmentActivity : AppCompatActivity() {
     private var captionString: String = ""
     private var imageList: ArrayList<String> = ArrayList()
     private val PERMS = Manifest.permission.READ_EXTERNAL_STORAGE
-    private lateinit var realEstateAgentViewModel: RealEstateAgentViewModel
+    private lateinit var addApartmentViewModel: AddApartmentViewModel
+    //private val channelId = "channel12365"
 
 
     private lateinit var binding: ActivityAddApartmentBinding
@@ -47,9 +53,9 @@ class AddApartmentActivity : AppCompatActivity() {
         binding = ActivityAddApartmentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val viewModelFactory = Injection.provideViewModelFactory(this)
-        realEstateAgentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
-            RealEstateAgentViewModel::class.java
+        val viewModelFactory = Injection.provideAddApartmentViewModel(this)
+        addApartmentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
+            AddApartmentViewModel::class.java
         )
 
         val idAgent = intent.getIntExtra(intentIdAgent, -1)
@@ -134,13 +140,82 @@ class AddApartmentActivity : AppCompatActivity() {
                     month = null,
                     year = null
                 )
-                realEstateAgentViewModel.insertApartment(apartment)
-                intent = Intent(this, MainActivity::class.java)
-                intent.putExtra("account", idAgent)
-                startActivity(intent)
+                addApartmentViewModel.insertApartment(apartment)
+                Log.d("tentative", "3")
+                addApartmentViewModel.getIdInserted().observe(this, {
+                    if (it != null) {
+                        val check: Long = -1
+                        if (it != check) {
+                            // createNotificationChannel()
+                            buildNotification(this, it)
+                            val intentToMainActivity = Intent(this, MainActivity::class.java)
+                            intentToMainActivity.putExtra("account", idAgent)
+                            startActivity(intentToMainActivity)
+                        } else
+                            Toast.makeText(this, "this doesnt work", Toast.LENGTH_SHORT).show()
+                    }
+                })
+
             } else Toast.makeText(this, "some fields are missing", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun buildNotification(context: Context, response: Long) {
+
+        val mIntent = Intent(context, NotificationSuccess::class.java)
+
+        mIntent.putExtra(idRealEstate, response)
+
+        val uniqueInt: Int = System.currentTimeMillis().toInt()
+
+
+        /*val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
+            addNextIntentWithParentStack(mIntent)
+            getPendingIntent(uniqueInt, PendingIntent.FLAG_UPDATE_CURRENT)
+        }*/
+
+        val pendingIntent =
+            PendingIntent.getBroadcast(this, uniqueInt, mIntent, 0)
+
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        alarmManager[AlarmManager.RTC_WAKEUP, System.currentTimeMillis()] = pendingIntent
+    }
+        /*
+        val inboxStyle = NotificationCompat.InboxStyle()
+
+        inboxStyle.setBigContentTitle("Real estate Manager notification")
+        inboxStyle.addLine(notificationString)
+
+
+        val notificationBuilder =
+            NotificationCompat.Builder(context, channelId)
+                .setContentTitle("Real estate Manager")
+                .setContentText("Don't forget your reservation !")
+                .setSmallIcon(R.drawable.breakfeast_icons)
+                .setAutoCancel(false)
+                .setContentIntent(pendingIntent)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setStyle(inboxStyle)
+
+
+        with(NotificationManagerCompat.from(context)) {
+            notify(uniqueInt, notificationBuilder.build())
+        }
+    }*/
+
+   /* private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "real estate manager notification"
+            val descriptionText = "real estate manager notification description"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }*/
 
     private fun handleResponsePic(
         requestCode: Int,

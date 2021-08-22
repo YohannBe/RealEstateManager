@@ -19,7 +19,7 @@ interface RealEstateDao {
     fun deleteRealEstate(realEstate: RealEstate)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertRealEstate(realEstate: RealEstate)
+    fun insertRealEstate(realEstate: RealEstate): Long
 
     @Update
     fun updateRealEstate(realEstate: RealEstate)

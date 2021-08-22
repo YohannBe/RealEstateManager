@@ -9,15 +9,198 @@ import android.location.Geocoder
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import com.example.realestatemanager.R
+import com.example.realestatemanager.databinding.ActivityAddApartmentBinding
+import com.example.realestatemanager.databinding.ActivityProfileSettingBinding
+import com.example.realestatemanager.databinding.DialogLoginBinding
+import com.example.realestatemanager.databinding.DialogSoldBinding
 import com.example.realestatemanager.model.myObjects.RealEstate
+import com.example.realestatemanager.view.activities.LogInActivity
+import com.example.realestatemanager.view.activities.ProfileSettingActivity
 import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.ByteArrayOutputStream
+
+/**
+ * get list of photo, build image with caption for each element*/
+fun buildImages(
+    photoReference: ArrayList<String>,
+    caption: ArrayList<String>,
+    hiddenScrollView: HorizontalScrollView?,
+    linearLayout: LinearLayout,
+    modification: Boolean,
+    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    realEstate: RealEstate?,
+    context: Context,
+    activity: Activity
+) {
+    for (i in 0 until photoReference.size) {
+        val imageByteArray: ByteArray = Base64.decode(photoReference[i], Base64.DEFAULT)
+        val bitmap = BitmapFactory.decodeByteArray(
+            imageByteArray,
+            0,
+            imageByteArray.size
+        )
+        buildImageView(
+            bitmap,
+            hiddenScrollView,
+            context,
+            linearLayout,
+            activity,
+            caption[i],
+            modification,
+            realEstateAgentViewModel,
+            realEstate,
+            photoReference[i]
+        )
+    }
+}
+
+/**
+ * get photo, add the newly build photo to layout*/
+
+fun buildImageView(
+    bitmap: Bitmap,
+    hiddenScrollView: HorizontalScrollView?,
+    context: Context,
+    hiddenLinearLayout: LinearLayout,
+    activity: Activity,
+    caption: String?,
+    modification: Boolean,
+    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    realEstate: RealEstate?,
+    photoReference: String?
+) {
+    if (hiddenScrollView != null) {
+        if (hiddenScrollView.visibility == View.GONE)
+            hiddenScrollView.visibility = View.VISIBLE
+    }
+
+    val imageView = ImageView(context)
+    val layoutParams = LinearLayout.LayoutParams(500, 500)
+    layoutParams.marginEnd = 20
+    imageView.layoutParams = layoutParams
+    imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+    if (caption != null) {
+        val newBitmap = createCanvas(bitmap, caption)
+        imageView.setImageBitmap(newBitmap)
+    } else
+        imageView.setImageBitmap(bitmap)
+    imageView.setOnClickListener {
+        buildDialog(
+            bitmap,
+            activity,
+            context,
+            modification,
+            realEstateAgentViewModel,
+            realEstate,
+            photoReference,
+            caption
+        )
+    }
+    hiddenLinearLayout.addView(imageView)
+}
+
+/**
+ * get photo, add the caption on its canvas layout*/
+
+fun createCanvas(bitmap: Bitmap, caption: String): Bitmap {
+
+    val paint = Paint()
+    paint.color = Color.WHITE
+    paint.textAlign = Paint.Align.CENTER
+    paint.textSize = 60F
+    val textRec = Rect()
+    val overRect = Rect(0, 300, 500, 500)
+    paint.getTextBounds(caption, 0, caption.length, textRec)
+    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, true)
+    val newBitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
+
+    val paintOver = Paint()
+    paintOver.color = Color.BLACK
+    paintOver.alpha = 150
+
+    val canvas = Canvas(newBitmap)
+
+    canvas.drawBitmap(scaledBitmap, 0F, 0F, null)
+    canvas.drawRect(overRect, paintOver)
+    canvas.drawText(
+        caption,
+        textRec.width().toFloat(),
+        textRec.height().toFloat() + 350,
+        paint
+    )
+    return newBitmap
+}
+
+/**
+ * set visibility of floating button*/
+fun setVisibility(
+    clicked: Boolean,
+    changesFloatingbutton: FloatingActionButton,
+    soldFloatingbutton: FloatingActionButton,
+    photoFloatingbutton: FloatingActionButton,
+    screenTransparent: Button
+) {
+    if (!clicked) {
+        changesFloatingbutton.visibility = View.VISIBLE
+        soldFloatingbutton.visibility = View.VISIBLE
+        photoFloatingbutton.visibility = View.VISIBLE
+        screenTransparent.visibility = View.VISIBLE
+    } else {
+        changesFloatingbutton.visibility = View.INVISIBLE
+        soldFloatingbutton.visibility = View.INVISIBLE
+        photoFloatingbutton.visibility = View.INVISIBLE
+        screenTransparent.visibility = View.GONE
+    }
+}
+
+/**
+ * build dialog with a calendar and set sold date for sold apartment*/
+fun addDateSold(mRealEstate: RealEstate, context: Context, realEstateAgentViewModel: RealEstateAgentViewModel) {
+    val dialogBuilder = context.let { AlertDialog.Builder(it) }
+    val bindingSold = DialogSoldBinding.inflate(LayoutInflater.from(context))
+    val dialogView = bindingSold.root
+
+        dialogBuilder.setView(dialogView)
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        bindingSold.cancelButtonDialogSold.setOnClickListener {
+            alertDialog.dismiss()
+        }
+        bindingSold.saveButtonDialogSold.setOnClickListener {
+            mRealEstate.sold = true
+            mRealEstate.day = bindingSold.calendarSoldApartment.dayOfMonth
+            mRealEstate.month = bindingSold.calendarSoldApartment.month
+            mRealEstate.year = bindingSold.calendarSoldApartment.year
+            realEstateAgentViewModel.updateRealEstate(mRealEstate)
+            alertDialog.dismiss()
+        }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 fun transformUriToString(bitmap: Bitmap?, imageList: ArrayList<String>): ArrayList<String> {
@@ -104,68 +287,30 @@ fun checkCheckButton(
     return listPOI
 }
 
-fun createCanvas(bitmap: Bitmap, caption: String): Bitmap {
 
-    val paint = Paint()
-    paint.color = Color.WHITE
-    paint.textAlign = Paint.Align.CENTER
-    paint.textSize = 60F
-    val textRec = Rect()
-    val overRect = Rect(0, 300, 500, 500)
-    val mString = caption
-    paint.getTextBounds(mString, 0, mString.length, textRec)
-    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, true)
-    val newBitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
-
-    val paintOver = Paint()
-    paintOver.color = Color.BLACK
-    paintOver.alpha = 150
-
-    val canvas = Canvas(newBitmap)
-
-    canvas.drawBitmap(scaledBitmap, 0F, 0F, null)
-    canvas.drawRect(overRect, paintOver)
-    canvas.drawText(
-        mString,
-        textRec.width().toFloat(),
-        textRec.height().toFloat() + 350,
-        paint
-    )
-    return newBitmap
-}
-
-
-fun buildImageView(
-    bitmap: Bitmap,
-    hiddenScrollView: HorizontalScrollView?,
-    context: Context,
-    hiddenLinearLayout: LinearLayout,
-    activity: Activity,
-    caption: String?,
-    modification: Boolean,
-    realEstateAgentViewModel: RealEstateAgentViewModel?,
-    realEstate: RealEstate?,
-    photoReference: String?
+fun buildDialogRegistration(
+    logInActivity: LogInActivity,
+    mailEditText: EditText,
+    passwordEditText: EditText,
+    context: Context
 ) {
-    if (hiddenScrollView != null) {
-        if (hiddenScrollView.visibility == View.GONE)
-            hiddenScrollView.visibility = View.VISIBLE
-    }
+    val dialogBuilder = AlertDialog.Builder(logInActivity)
+    val bindingDialog = DialogLoginBinding.inflate(LayoutInflater.from(context))
+    val dialogView = bindingDialog.root
+    dialogBuilder.setView(dialogView)
+    val alertDialog = dialogBuilder.create()
+    alertDialog.show()
+    alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-    val imageView = ImageView(context)
-    val layoutParams = LinearLayout.LayoutParams(500, 500)
-    layoutParams.marginEnd = 20
-    imageView.layoutParams = layoutParams
-    imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-    if (caption != null) {
-        val newBitmap = createCanvas(bitmap, caption)
-        imageView.setImageBitmap(newBitmap)
-    } else
-        imageView.setImageBitmap(bitmap)
-    imageView.setOnClickListener {
-        buildDialog(bitmap, activity, context, modification,realEstateAgentViewModel, realEstate, photoReference, caption)
+    bindingDialog.registerButtonDialog.setOnClickListener {
+        val intent = Intent(logInActivity, ProfileSettingActivity::class.java)
+        intent.putExtra("mail", mailEditText.text.toString())
+        intent.putExtra("password", passwordEditText.text.toString())
+        logInActivity.startActivity(intent)
     }
-    hiddenLinearLayout.addView(imageView)
+    bindingDialog.cancelButtonDialog.setOnClickListener {
+        alertDialog.dismiss()
+    }
 }
 
 fun buildDialog(
@@ -201,7 +346,8 @@ fun buildDialog(
             realEstateAgentViewModel?.updateRealEstate(realEstate)
             alertDialog.dismiss()
         } else
-            Toast.makeText(context, "You have to keep at least one picture", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "You have to keep at least one picture", Toast.LENGTH_SHORT)
+                .show()
     }
 }
 

@@ -6,7 +6,7 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/yourlunch_item"
+            android:id="@+id/simulator_item"
             android:title="Simulateur de prêt"
             android:icon="@drawable/simulation_icons"
             />

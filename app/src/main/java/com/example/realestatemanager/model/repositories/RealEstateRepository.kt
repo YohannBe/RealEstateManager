@@ -11,8 +11,8 @@ class RealEstateRepository (private val realEstateDao: RealEstateDao) {
         return realEstateDao.loadAllRealEstate()
     }
 
-    fun insertRealEstate(realEstate: RealEstate){
-        realEstateDao.insertRealEstate(realEstate)
+    fun insertRealEstate(realEstate: RealEstate): Long{
+        return realEstateDao.insertRealEstate(realEstate)
     }
 
     fun updateRealEstate(realEstate: RealEstate){

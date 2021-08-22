@@ -2,47 +2,435 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginVertical="20dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
+        android:padding="20dp"
         app:cardCornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <TextView
+
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Price interval:"/>
+                android:layout_margin="30dp"
+                android:padding="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/linearbuttonlayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <SeekBar
-                android:id="@+id/seekBar2"
-                style="@style/Widget.AppCompat.SeekBar.Discrete"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Type:" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_apartmentapartment"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="Apartment"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_apartmentloft"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="Loft"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_apartmentduplex"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="Duplex"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_apartmenthouse"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="House"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_apartmentvilla"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="Villa"
+                            app:chipCornerRadius="10dp" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Price interval:" />
+
+                    <com.google.android.material.slider.RangeSlider
+                        android:id="@+id/price_range_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stepSize="10000.0"
+                        android:valueFrom="0.0"
+                        android:valueTo="1000000.0"
+                        app:values="@array/initial_slider_values" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Surface interval:" />
+
+                    <com.google.android.material.slider.RangeSlider
+                        android:id="@+id/surface_range_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stepSize="10.0"
+                        android:valueFrom="0.0"
+                        android:valueTo="300.0"
+                        app:values="@array/initial_slider_values_surface">
+
+                    </com.google.android.material.slider.RangeSlider>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Number room:" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_room1"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="Studio"
+                            android:tag="room1"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_room2"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="2"
+                            android:tag="room2"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_room3"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="3"
+                            android:tag="room3"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_room4"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="4"
+                            android:tag="room4"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_room5"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="5+"
+                            android:tag="room5"
+                            app:chipCornerRadius="10dp" />
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Number bedroom:" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bedroom1"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="1"
+                            android:tag="bedroom1"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bedroom2"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="2"
+                            android:tag="bedroom2"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bedroom3"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="3"
+                            android:tag="bedroom3"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bedroom4"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="4"
+                            android:tag="bedroom4"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bedroom5"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="5+"
+                            android:tag="bedroom5"
+                            app:chipCornerRadius="10dp" />
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Number bathroom:" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bathroom1"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="1"
+                            android:tag="bathroom1"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bathroom2"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="2"
+                            android:tag="bathroom2"
+                            app:chipCornerRadius="10dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bathroom3"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="3+"
+                            android:tag="bathroom3"
+                            app:chipCornerRadius="10dp" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Put in market between" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/before_time_picker"
+                                style="@style/Widget.RealEstateManager.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="5dp"
+                                android:layout_weight="1"
+                                android:checkable="false"
+                                android:text="Before"
+                                android:textAlignment="center"
+                                app:chipCornerRadius="10dp" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/interval_time_picker"
+                                style="@style/Widget.RealEstateManager.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="5dp"
+                                android:layout_weight="1"
+                                android:checkable="false"
+                                android:text="In between"
+                                android:textAlignment="center"
+                                app:chipCornerRadius="10dp" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/after_time_picker"
+                                style="@style/Widget.RealEstateManager.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="5dp"
+                                android:layout_weight="1"
+                                android:checkable="false"
+                                android:text="After"
+                                android:textAlignment="center"
+                                app:chipCornerRadius="10dp" />
+                        </LinearLayout>
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textview_date_show"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="200dp"
+                            android:text=""
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="5dp"
+                            app:cardCornerRadius="13dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageButton
+                                android:id="@+id/button_reset_date"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:background="@color/colorPrimary"
+                                android:src="@drawable/close_icons" />
+                        </androidx.cardview.widget.CardView>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="City" />
+
+                    <AutoCompleteTextView
+                        android:id="@+id/city_autocompletion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Country" />
+
+                    <AutoCompleteTextView
+                        android:id="@+id/country_autocompletion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <LinearLayout
+                android:id="@+id/linearbuttonlayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="1000000"
-                android:progress="100000" />
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
-            <SeekBar
-                android:id="@+id/seekBar3"
-                style="@style/Widget.AppCompat.SeekBar.Discrete"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1000000"
-                android:progress="100000"
-                />
-        </LinearLayout>
+                <Button
+                    android:id="@+id/cancel_button_dialog_filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_weight="1"
+                    android:text="Cancel" />
 
+                <Button
+                    android:id="@+id/button_reset_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_weight="1"
+                    android:text="Reset" />
 
+                <Button
+                    android:id="@+id/button_filter_dialog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_weight="1"
+                    android:text="Filter" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

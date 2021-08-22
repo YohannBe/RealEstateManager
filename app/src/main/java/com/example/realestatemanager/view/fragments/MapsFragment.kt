@@ -9,21 +9,19 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.utils.getLocationByAddress
 import com.example.realestatemanager.view.myInterface.CommunicatorInterface
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.mainActivity.MainActivityViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -41,8 +39,7 @@ class MapsFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private lateinit var mContext: Context
     private lateinit var fusedLocationProvider: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
-    private lateinit var realEstateAgentViewModel: RealEstateAgentViewModel
-    private var listRealEstate: List<RealEstate> = ArrayList()
+    private lateinit var mapsViewModel: MainActivityViewModel
     private lateinit var communicatorInterface: CommunicatorInterface
 
     override fun onAttach(context: Context) {
@@ -62,11 +59,6 @@ class MapsFragment : Fragment(), EasyPermissions.PermissionCallbacks {
             override fun onLocationChanged(location: Location?) {
                 if (location != null) {
                     myLocation = LatLng(location.latitude, location.longitude)
-                    realEstateAgentViewModel.getAllApartment().observe(viewLifecycleOwner, Observer {
-                        listRealEstate = it
-                        if (myLocation != null)
-                            updateMarker()
-                    })
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation!!, 15.0f))
                 }
             }
@@ -82,7 +74,7 @@ class MapsFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
         }
         if (!hasLocationPermission()) {
-           requestLocationPermission()
+            requestLocationPermission()
             return@OnMapReadyCallback
         } else {
             androidLocationManager.requestLocationUpdates(
@@ -122,20 +114,27 @@ class MapsFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
         val view: View = inflater.inflate(R.layout.fragment_maps, container, false)
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(mContext)
-        realEstateAgentViewModel = activity?.let {
-            ViewModelProviders.of(it, Injection.provideViewModelFactory(it)).get(
-                RealEstateAgentViewModel::class.java
+        mapsViewModel = activity?.let {
+            ViewModelProviders.of(it, Injection.provideMainActivityViewModelFactory(it)).get(
+                MainActivityViewModel::class.java
             )
         }!!
+
+        mapsViewModel.getAllApartment().observe(viewLifecycleOwner, { fullList ->
+            mapsViewModel.getFilter().observe(viewLifecycleOwner, {
+                updateMarker(mapsViewModel.updateListFilter(it, fullList))
+            })
+        })
 
         return view
     }
 
-    private fun updateMarker() {
+    private fun updateMarker(listRealEstate: List<RealEstate>) {
         mGoogleMap.clear()
-        for (i in listRealEstate.indices){
-            val sentence: String = listRealEstate[i].numberStreet.toString() + " " + listRealEstate[i].address + " " +
-                    listRealEstate[i].city +" " + listRealEstate[i].zipcode +" " +listRealEstate[i].country
+        for (i in listRealEstate.indices) {
+            val sentence: String =
+                listRealEstate[i].numberStreet.toString() + " " + listRealEstate[i].address + " " +
+                        listRealEstate[i].city + " " + listRealEstate[i].zipcode + " " + listRealEstate[i].country
             val markerOptions = MarkerOptions()
             val mLatLng = getLocationByAddress(mContext, sentence)
             if (mLatLng != null) {

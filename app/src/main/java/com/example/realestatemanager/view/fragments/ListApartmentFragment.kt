@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,11 +14,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.utils.SwipeGesture
+import com.example.realestatemanager.view.activities.MainActivity
 import com.example.realestatemanager.view.myInterface.CommunicatorInterface
 import com.example.realestatemanager.view.myInterface.OnButtonClickedListener
 import com.example.realestatemanager.view.myRecyclerView.RecyclerViewAdapterApartment
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.mainActivity.MainActivityViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
@@ -29,17 +29,17 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
     private lateinit var adapter: RecyclerViewAdapterApartment
     private lateinit var mCallback: OnButtonClickedListener
     private lateinit var swipeGesture: SwipeGesture
-    private lateinit var realEstateViewModel: RealEstateAgentViewModel
+    private lateinit var listApartmentViewModel: MainActivityViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var mContext: Context
     private lateinit var communicatorInterface: CommunicatorInterface
+    private lateinit var mActivity: MainActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Log.e("creation fragment", "ici")
     }
-
 
 
     override fun onAttach(context: Context) {
@@ -51,7 +51,7 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
                 communicatorInterface
             )
         mContext = context
-
+        mActivity = activity as MainActivity
 
     }
 
@@ -66,9 +66,8 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
     }
 
 
-
     private fun initGesture(
-        realEstateViewModel: RealEstateAgentViewModel?,
+        realEstateViewModel: MainActivityViewModel,
         context: Context
     ) {
         swipeGesture = object : SwipeGesture(context) {
@@ -91,22 +90,24 @@ class ListApartmentFragment : Fragment(), View.OnClickListener {
         floatingButton = view.findViewById(R.id.floating_button_add_apartment)
 
         recyclerView = view.findViewById(R.id.recycler_view_list_apartment)
-        realEstateViewModel = activity?.let {
-            ViewModelProviders.of(it, Injection.provideViewModelFactory(it)).get(
-                RealEstateAgentViewModel::class.java
+        listApartmentViewModel = activity?.let {
+            ViewModelProviders.of(it, Injection.provideMainActivityViewModelFactory(it)).get(
+                MainActivityViewModel::class.java
             )
         }!!
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
-        realEstateViewModel?.getAllApartment()?.observe(
+        listApartmentViewModel.getAllApartment().observe(
             viewLifecycleOwner,
-            Observer { list: List<RealEstate> ->
-                adapter.updateApartmentList(list)
+            { list ->
+                listApartmentViewModel.getFilter().observe(requireActivity(), {
+                    adapter.updateApartmentList(listApartmentViewModel.updateListFilter(it, list))
+                })
             })
 
         floatingButton.setOnClickListener(this)
         this.createCallbackToParentActivity()
-        initGesture(realEstateViewModel, mContext)
+        initGesture(listApartmentViewModel, mContext)
 
     }
 
