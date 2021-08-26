@@ -7,9 +7,9 @@
     android:layout_marginVertical="@dimen/margin_tiny">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardview_apartment_layout_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorPrimaryBackground"
         app:cardCornerRadius="@dimen/radius_corner">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -50,6 +50,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_small"
                 android:textSize="15sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@+id/cardview_imageview_holder"
                 app:layout_constraintTop_toTopOf="parent" />
 

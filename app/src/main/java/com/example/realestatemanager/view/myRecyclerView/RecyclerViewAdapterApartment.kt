@@ -9,12 +9,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-
 import com.example.realestatemanager.R
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.view.myInterface.CommunicatorInterface
-import java.lang.StringBuilder
 
 class RecyclerViewAdapterApartment(
     context: Context,
@@ -25,6 +25,7 @@ class RecyclerViewAdapterApartment(
     private var data: List<RealEstate> = ArrayList()
     private val context = context
     private val communicatorInterface = communicatorInterface
+    private var clickedItem: Int = -1
 
     fun updateApartmentList(list: List<RealEstate>) {
         this.data = list
@@ -60,7 +61,21 @@ class RecyclerViewAdapterApartment(
                 imageByteArray.size
             )
         )
+
+
+        if (clickedItem == position){
+            holder.address.setTextColor(ContextCompat.getColor(context, R.color.white))
+            holder.price.setTextColor(ContextCompat.getColor(context, R.color.white))
+            holder.container.setBackgroundColor(ContextCompat.getColor(context, R.color.colorSecondaryLight))
+        } else {
+            holder.address.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
+            holder.price.setTextColor(ContextCompat.getColor(context, R.color.colorSecondary))
+            holder.container.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryBackground))
+        }
+
         holder.parent.setOnClickListener {
+            clickedItem = position
+            notifyDataSetChanged()
             communicatorInterface.passData(data[position].id)
         }
 
@@ -75,5 +90,6 @@ class RecyclerViewAdapterApartment(
         val type: TextView = itemView.findViewById(R.id.textView_item_apartment)
         val parent: LinearLayout = itemView.findViewById(R.id.layout_appartment)
         val sold: ImageView = itemView.findViewById(R.id.sold_imageview)
+        val container: CardView = itemView.findViewById(R.id.cardview_apartment_layout_container)
     }
 }
