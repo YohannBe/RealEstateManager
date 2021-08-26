@@ -3,13 +3,11 @@ package com.example.realestatemanager.view.activities
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.example.realestatemanager.R
 import com.example.realestatemanager.databinding.ActivitySettingBinding
 import com.example.realestatemanager.model.myObjects.RealEstateAgent
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.setting.SettingViewModel
 
 class SettingActivity : AppCompatActivity() {
 
@@ -21,13 +19,13 @@ class SettingActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        val viewModelFactory = Injection.provideViewModelFactory(this)
-        val realEstateAgentViewModel = ViewModelProviders.of(this, viewModelFactory).get(
-            RealEstateAgentViewModel::class.java
+        val viewModelFactory = Injection.provideSettingViewModelFactory(this)
+        val settingViewModel = ViewModelProviders.of(this, viewModelFactory).get(
+            SettingViewModel::class.java
         )
 
-        realEstateAgentViewModel.getMyAgent(intent.getIntExtra("idRealEstateAgent", -1))
-            .observe(this, Observer {
+        settingViewModel.getMyAgent(intent.getIntExtra("idRealEstateAgent", -1))
+            .observe(this, {
                 binding.firstnameEdittextSetting.setText(it.firstName)
                 binding.lastnameEdittextSetting.setText(it.lastName)
                 binding.mailEdittextSetting.setText(it.mail)
@@ -46,7 +44,7 @@ class SettingActivity : AppCompatActivity() {
                         mPassword,
                         binding.mailEdittextSetting.text.toString()
                     )
-                    realEstateAgentViewModel.updateMyAgent(realEstateAgent)
+                    settingViewModel.updateMyAgent(realEstateAgent)
 
                     finish()
                 }

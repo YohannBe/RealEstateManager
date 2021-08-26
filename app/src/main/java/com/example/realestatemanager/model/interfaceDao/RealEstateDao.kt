@@ -15,6 +15,9 @@ interface RealEstateDao {
     @Query("SELECT * FROM RealEstate")
     fun loadAllRealEstate(): LiveData<List<RealEstate>>
 
+    @Query("SELECT * FROM RealEstate WHERE RealEstate.iDRealEstateAgent = :id")
+    fun loadAllMyRealEstate(id: Int): LiveData<List<RealEstate>>
+
     @Delete
     fun deleteRealEstate(realEstate: RealEstate)
 

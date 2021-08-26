@@ -54,17 +54,25 @@
                 app:layout_constraintStart_toEndOf="@+id/main_activity_frame_layout"
                 app:layout_constraintTop_toBottomOf="@+id/include" />
 
-            <ImageButton
-                android:id="@+id/closefragment_button"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/closefragment_cardview"
                 android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
                 app:layout_constraintTop_toBottomOf="@+id/include"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/close_black_lack_icons"
-                app:backgroundTint="@color/colorPrimaryBackground"/>
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                app:cardElevation="5dp"
+                app:cardCornerRadius="@dimen/radius_corner_l">
+                <ImageButton
+                    android:id="@+id/closefragment_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/close_black_lack_icons"
+                    app:backgroundTint="@color/white"/>
+            </androidx.cardview.widget.CardView>
 
             <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:id="@+id/bottom_navigation"

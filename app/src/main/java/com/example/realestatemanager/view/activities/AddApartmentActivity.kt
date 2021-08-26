@@ -129,7 +129,7 @@ class AddApartmentActivity : AppCompatActivity() {
                     photoReference = imageList,
                     roomNumber = binding.editTextroom.text.toString().toInt(),
                     listPOI = listPOI,
-                    dateStart = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+                    dateStart = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date()),
                     dateEnd = null,
                     caption = listCaption,
                     numberBedroom = if (TextUtils.isEmpty(binding.edittextBedroom.text.toString())) null else binding.edittextBedroom.text.toString()

@@ -10,7 +10,7 @@ import com.example.realestatemanager.databinding.ActivityLoginBinding
 import com.example.realestatemanager.model.myObjects.RealEstateAgent
 import com.example.realestatemanager.utils.buildDialogRegistration
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.login.LoginViewModel
 
 class LogInActivity : AppCompatActivity() {
 
@@ -25,13 +25,13 @@ class LogInActivity : AppCompatActivity() {
         initClick(initViewModel())
     }
 
-    private fun initClick(realEstateAgentViewModel: RealEstateAgentViewModel) {
+    private fun initClick(loginViewModel: LoginViewModel) {
         binding.login.setOnClickListener {
             if (!TextUtils.isEmpty(binding.username.text.toString()) && !TextUtils.isEmpty(
                     binding.password.text.toString()
                 )
             ) {
-                realEstateAgentViewModel.loadRealEstateAgentAccount(
+                loginViewModel.loadRealEstateAgentAccount(
                     binding.username.text.toString(),
                     binding.password.text.toString()
                 ).observe(this, { account: RealEstateAgent? ->
@@ -43,7 +43,7 @@ class LogInActivity : AppCompatActivity() {
                             finish()
                         }
                     } else {
-                        realEstateAgentViewModel.findExistingMail(binding.username.text.toString())
+                        loginViewModel.findExistingMail(binding.username.text.toString())
                             .observe(this, {
                                 if (it == null) {
                                     buildDialogRegistration(
@@ -66,10 +66,10 @@ class LogInActivity : AppCompatActivity() {
         }
     }
 
-    private fun initViewModel(): RealEstateAgentViewModel {
-        val viewModelFactory = Injection.provideViewModelFactory(this)
+    private fun initViewModel(): LoginViewModel {
+        val viewModelFactory = Injection.provideLoginViewModelFactory(this)
         return ViewModelProviders.of(this, viewModelFactory).get(
-            RealEstateAgentViewModel::class.java
+            LoginViewModel::class.java
         )
     }
 

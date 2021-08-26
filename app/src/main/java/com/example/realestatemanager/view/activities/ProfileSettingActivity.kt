@@ -3,15 +3,11 @@ package com.example.realestatemanager.view.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.example.realestatemanager.R
 import com.example.realestatemanager.databinding.ActivityProfileSettingBinding
 import com.example.realestatemanager.model.myObjects.RealEstateAgent
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.profileSetting.ProfileSettingViewModel
 
 class ProfileSettingActivity : AppCompatActivity() {
 
@@ -23,7 +19,7 @@ class ProfileSettingActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        val realEstateAgentViewModel = initViewModel()
+        val profileSettingViewModel = initViewModel()
 
         initElements()
 
@@ -34,8 +30,8 @@ class ProfileSettingActivity : AppCompatActivity() {
                 binding.passwordEdittext.text.toString(),
                 binding.mailEdittext.text.toString()
             )
-            realEstateAgentViewModel.insertAgent(agent)
-            realEstateAgentViewModel.loadRealEstateAgentAccount(
+            profileSettingViewModel.insertAgent(agent)
+            profileSettingViewModel.loadRealEstateAgentAccount(
                 binding.mailEdittext.text.toString(),
                 binding.passwordEdittext.text.toString()
             ).observe(this,
@@ -57,10 +53,10 @@ class ProfileSettingActivity : AppCompatActivity() {
         binding.passwordEdittext.setText(password)
     }
 
-    private fun initViewModel(): RealEstateAgentViewModel {
-        val viewModelFactory = Injection.provideViewModelFactory(this)
+    private fun initViewModel(): ProfileSettingViewModel {
+        val viewModelFactory = Injection.provideProfileSettingViewModelFactory(this)
         return ViewModelProviders.of(this, viewModelFactory).get(
-            RealEstateAgentViewModel::class.java
+            ProfileSettingViewModel::class.java
         )
     }
 }

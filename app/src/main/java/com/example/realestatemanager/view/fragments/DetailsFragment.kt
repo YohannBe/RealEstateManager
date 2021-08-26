@@ -17,6 +17,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.marginTop
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
@@ -28,18 +29,16 @@ import com.example.realestatemanager.databinding.FragmentDetailsBinding
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.utils.*
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.detailFragment.DetailFragmentVIewModel
 import kotlin.collections.ArrayList
 
 class DetailsFragment : Fragment() {
 
     var idRealEstateRetrieved: Int = -1
-
-    private lateinit var realEstateViewModel: RealEstateAgentViewModel
+    private lateinit var detailFragmentViewModel: DetailFragmentVIewModel
     private lateinit var mContext: Context
     private var type: String = ""
     private var listPOI = ArrayList<String>()
-    private var first = true
     private var imageList: ArrayList<String> = ArrayList()
     private var captionString: String = ""
     private var listCaption = ArrayList<String>()
@@ -73,17 +72,11 @@ class DetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentDetailsBinding
     private lateinit var bindingDialog: ActivityAddApartmentBinding
-    private lateinit var bindingSold: DialogSoldBinding
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
         mActivity = this.requireActivity()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -105,14 +98,14 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initViewModel() {
-        realEstateViewModel = activity?.let {
-            ViewModelProviders.of(it, Injection.provideViewModelFactory(it)).get(
-                RealEstateAgentViewModel::class.java
+        detailFragmentViewModel = activity?.let {
+            ViewModelProviders.of(it, Injection.provideDetailFragmentViewModelFactory(it)).get(
+                DetailFragmentVIewModel::class.java
             )
         }!!
 
 
-        realEstateViewModel.loadRealEstate(idRealEstateRetrieved)
+        detailFragmentViewModel.loadRealEstate(idRealEstateRetrieved)
             .observe(requireActivity(), {
                 if (it != null) {
                     initElements(it)
@@ -132,7 +125,38 @@ class DetailsFragment : Fragment() {
         binding.surfaceTextviewDetails.text = realEstate.surface.toString()
         binding.roomTextviewDetails.text = realEstate.roomNumber.toString()
         binding.fullDescription.text = realEstate.description
+        var date = "Put in market the: " + realEstate.dateStart
+        if (realEstate.sold) {
+            date = date + " / Sold the: " + realEstate.dateEnd
+            binding.dateOnMarket.text = date
+        } else
+            binding.dateOnMarket.text = date
 
+
+
+        if (mRealEstate.listPOI.size != 0)
+            binding.poiTitle.visibility = View.VISIBLE
+        else
+            binding.poiTitle.visibility = View.GONE
+
+        binding.chipSchool.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.school))) View.VISIBLE else View.GONE
+        binding.chipPark.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.park))) View.VISIBLE else View.GONE
+        binding.chipBus.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.bus))) View.VISIBLE else View.GONE
+        binding.chipStadium.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.stadium))) View.VISIBLE else View.GONE
+        binding.chipSport.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.sport_club))) View.VISIBLE else View.GONE
+        binding.chipPool.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.pool))) View.VISIBLE else View.GONE
+        binding.chipSubway.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.subway))) View.VISIBLE else View.GONE
+        binding.chipRestaurant.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.restaurant))) View.VISIBLE else View.GONE
+        binding.chipMarket.visibility =
+            if (mRealEstate.listPOI.contains(getString(R.string.market))) View.VISIBLE else View.GONE
 
         if (realEstate.numberBathroom != null && realEstate.numberBathroom != 0) {
             binding.bathroomTextviewDetailsTitle.visibility = View.VISIBLE
@@ -185,7 +209,7 @@ class DetailsFragment : Fragment() {
             updateFloating()
         }
         binding.soldFloatingbutton.setOnClickListener {
-            addDateSold(mRealEstate, mContext, realEstateViewModel)
+            addDateSold(mRealEstate, mContext, detailFragmentViewModel)
             updateFloating()
         }
         binding.photoFloatingbutton.setOnClickListener {
@@ -257,7 +281,8 @@ class DetailsFragment : Fragment() {
 
     private fun buildDialogAfterGettingPhotos(bitmap: Bitmap?) {
         val dialogBuilder = AlertDialog.Builder(mContext)
-        val bindingCaptionPictureBinding = DialogCaptionPictureBinding.inflate(LayoutInflater.from(mContext))
+        val bindingCaptionPictureBinding =
+            DialogCaptionPictureBinding.inflate(LayoutInflater.from(mContext))
         val dialogView = bindingCaptionPictureBinding.root
         dialogBuilder.setView(dialogView)
         bindingCaptionPictureBinding.imageviewDialogCaption.setImageBitmap(bitmap)
@@ -272,26 +297,28 @@ class DetailsFragment : Fragment() {
             android.R.layout.simple_spinner_item, arrayType
         )
         bindingCaptionPictureBinding.spinnerDialogCaption.adapter = mAdapter
-        bindingCaptionPictureBinding.spinnerDialogCaption.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
+        bindingCaptionPictureBinding.spinnerDialogCaption.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
 
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    captionString = arrayType[position]
+                }
             }
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                captionString = arrayType[position]
-            }
-        }
         bindingCaptionPictureBinding.saveButtonCaption.setOnClickListener {
             imageList = transformUriToString(bitmap, imageList)
             listCaption = addCaption(captionString, listCaption)
             if (bitmap != null) {
                 mRealEstate.photoReference = imageList
                 mRealEstate.caption = listCaption
-                realEstateViewModel.updateRealEstate(mRealEstate)
+                detailFragmentViewModel.updateRealEstate(mRealEstate)
             }
             alertDialog.dismiss()
         }
@@ -334,6 +361,7 @@ class DetailsFragment : Fragment() {
             dialogBuilder.setView(dialogView)
             val spinner: Spinner = dialogView.findViewById(R.id.spinner_type)
 
+            bindingDialog.imageviewAddapartmentActivity.visibility = View.GONE
             bindingDialog.editTextDescription.setText(mRealEstate.description)
             bindingDialog.editTextNumberSurface.setText(mRealEstate.surface.toString())
             bindingDialog.editTextNumberPrice.setText(mRealEstate.price.toString())
@@ -371,39 +399,40 @@ class DetailsFragment : Fragment() {
             }
 
             bindingDialog.imageviewApartment.visibility = View.GONE
-            realEstateViewModel.loadRealEstate(mRealEstate.id).observe(requireActivity(), Observer {
-                if (it != null) {
-                    bindingDialog.linearlayoutAddapartmentHidden.removeAllViewsInLayout()
-                    buildImages(
-                        it.photoReference,
-                        it.caption,
-                        bindingDialog.hiddenScrollviewAddapartment,
-                        bindingDialog.linearlayoutAddapartmentHidden,
-                        true,
-                        realEstateViewModel,
-                        it,
-                        mContext,
-                        requireActivity()
-                    )
-                }
-            })
+            detailFragmentViewModel.loadRealEstate(mRealEstate.id)
+                .observe(requireActivity(), Observer {
+                    if (it != null) {
+                        bindingDialog.linearlayoutAddapartmentHidden.removeAllViewsInLayout()
+                        buildImages(
+                            it.photoReference,
+                            it.caption,
+                            bindingDialog.hiddenScrollviewAddapartment,
+                            bindingDialog.linearlayoutAddapartmentHidden,
+                            true,
+                            detailFragmentViewModel,
+                            it,
+                            mContext,
+                            requireActivity()
+                        )
+                    }
+                })
 
             for (poi in mRealEstate.listPOI) {
                 when (poi) {
-                    "school" -> bindingDialog.school.isChecked = true
-                    "parc" -> bindingDialog.parc.isChecked = true
-                    "Bus" -> bindingDialog.Bus.isChecked = true
-                    "Stadium" -> bindingDialog.Stadium.isChecked = true
-                    "Sport club" -> bindingDialog.Sport.isChecked = true
-                    "Pool" -> bindingDialog.pool.isChecked = true
-                    "Metro" -> bindingDialog.Metro.isChecked = true
-                    "restaurant" -> bindingDialog.restaurant.isChecked = true
-                    "commerce" -> bindingDialog.commerce.isChecked = true
+                    getString(R.string.school) -> bindingDialog.school.isChecked = true
+                    getString(R.string.park) -> bindingDialog.parc.isChecked = true
+                    getString(R.string.bus) -> bindingDialog.Bus.isChecked = true
+                    getString(R.string.stadium) -> bindingDialog.Stadium.isChecked = true
+                    getString(R.string.sport_club) -> bindingDialog.Sport.isChecked = true
+                    getString(R.string.pool) -> bindingDialog.pool.isChecked = true
+                    getString(R.string.subway) -> bindingDialog.Metro.isChecked = true
+                    getString(R.string.restaurant) -> bindingDialog.restaurant.isChecked = true
+                    getString(R.string.market) -> bindingDialog.commerce.isChecked = true
                 }
             }
             val alertDialog = dialogBuilder.create()
             alertDialog.show()
-
+            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             bindingDialog.buttonSaveApartment.setOnClickListener {
                 listPOI = checkCheckButton(
                     bindingDialog.school,
@@ -429,12 +458,12 @@ class DetailsFragment : Fragment() {
                     zipcode = bindingDialog.editTextzipcodeAddress.text.toString().toInt(),
                     numberStreet = bindingDialog.editTextNumberAddress.text.toString().toInt(),
                     iDRealEstateAgent = mRealEstate.iDRealEstateAgent,
-                    sold = false,
+                    sold = mRealEstate.sold,
                     photoReference = mRealEstate.photoReference,
                     roomNumber = bindingDialog.editTextroom.text.toString().toInt(),
                     listPOI = listPOI,
                     dateStart = mRealEstate.dateStart,
-                    dateEnd = null,
+                    dateEnd = mRealEstate.dateEnd,
                     caption = mRealEstate.caption,
                     numberBedroom = if (TextUtils.isEmpty(bindingDialog.edittextBedroom.text.toString())) null else bindingDialog.edittextBedroom.text.toString()
                         .toInt(),
@@ -444,7 +473,7 @@ class DetailsFragment : Fragment() {
                     month = mRealEstate.month,
                     year = mRealEstate.year
                 )
-                realEstateViewModel.updateRealEstate(apartment)
+                detailFragmentViewModel.updateRealEstate(apartment)
                 alertDialog.dismiss()
             }
         }

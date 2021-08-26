@@ -10,20 +10,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.example.realestatemanager.R
-import com.example.realestatemanager.databinding.FragmentDetailsBinding
 import com.example.realestatemanager.databinding.FragmentProfileBinding
 import com.example.realestatemanager.utils.idRealEstate
 import com.example.realestatemanager.view.activities.SettingActivity
 import com.example.realestatemanager.viewmodel.Injection
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.profileFragment.ProfileFragmentViewModel
 
 class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
     private var idRealEstateAgentRetrieved = -1
     private lateinit var mContext: Context
-    private lateinit var realEstateViewModel: RealEstateAgentViewModel
+    private lateinit var viewModel: ProfileFragmentViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -51,12 +49,12 @@ class ProfileFragment : Fragment() {
     }
 
     private fun initElements() {
-        realEstateViewModel = activity?.let {
+        viewModel = activity?.let {
             ViewModelProviders.of(it, Injection.provideViewModelFactory(it)).get(
-                RealEstateAgentViewModel::class.java
+                ProfileFragmentViewModel::class.java
             )
         }!!
-        realEstateViewModel.getMyAgent(idRealEstateAgentRetrieved).observe(requireActivity(), Observer {
+        viewModel.getMyAgent(idRealEstateAgentRetrieved).observe(requireActivity(), Observer {
             binding.firstnametextview.text = it.firstName
             binding.lastnametextview.text = it.lastName
             binding.mailtextview.text = it.mail

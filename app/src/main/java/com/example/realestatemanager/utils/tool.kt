@@ -15,17 +15,23 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import com.example.realestatemanager.R
-import com.example.realestatemanager.databinding.ActivityAddApartmentBinding
-import com.example.realestatemanager.databinding.ActivityProfileSettingBinding
 import com.example.realestatemanager.databinding.DialogLoginBinding
 import com.example.realestatemanager.databinding.DialogSoldBinding
 import com.example.realestatemanager.model.myObjects.RealEstate
 import com.example.realestatemanager.view.activities.LogInActivity
 import com.example.realestatemanager.view.activities.ProfileSettingActivity
-import com.example.realestatemanager.viewmodel.RealEstateAgentViewModel
+import com.example.realestatemanager.viewmodel.detailFragment.DetailFragmentVIewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
+
+
+val outputDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).apply {
+    timeZone = TimeZone.getTimeZone("UTC")
+}
 
 /**
  * get list of photo, build image with caption for each element*/
@@ -35,7 +41,7 @@ fun buildImages(
     hiddenScrollView: HorizontalScrollView?,
     linearLayout: LinearLayout,
     modification: Boolean,
-    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    viewModel: DetailFragmentVIewModel?,
     realEstate: RealEstate?,
     context: Context,
     activity: Activity
@@ -55,7 +61,7 @@ fun buildImages(
             activity,
             caption[i],
             modification,
-            realEstateAgentViewModel,
+            viewModel,
             realEstate,
             photoReference[i]
         )
@@ -73,7 +79,7 @@ fun buildImageView(
     activity: Activity,
     caption: String?,
     modification: Boolean,
-    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    viewModel: DetailFragmentVIewModel?,
     realEstate: RealEstate?,
     photoReference: String?
 ) {
@@ -98,7 +104,7 @@ fun buildImageView(
             activity,
             context,
             modification,
-            realEstateAgentViewModel,
+            viewModel,
             realEstate,
             photoReference,
             caption
@@ -163,44 +169,32 @@ fun setVisibility(
 
 /**
  * build dialog with a calendar and set sold date for sold apartment*/
-fun addDateSold(mRealEstate: RealEstate, context: Context, realEstateAgentViewModel: RealEstateAgentViewModel) {
+fun addDateSold(mRealEstate: RealEstate, context: Context, viewModel: DetailFragmentVIewModel) {
     val dialogBuilder = context.let { AlertDialog.Builder(it) }
     val bindingSold = DialogSoldBinding.inflate(LayoutInflater.from(context))
     val dialogView = bindingSold.root
 
-        dialogBuilder.setView(dialogView)
-        val alertDialog = dialogBuilder.create()
-        alertDialog.show()
-        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        bindingSold.cancelButtonDialogSold.setOnClickListener {
-            alertDialog.dismiss()
-        }
-        bindingSold.saveButtonDialogSold.setOnClickListener {
-            mRealEstate.sold = true
-            mRealEstate.day = bindingSold.calendarSoldApartment.dayOfMonth
-            mRealEstate.month = bindingSold.calendarSoldApartment.month
-            mRealEstate.year = bindingSold.calendarSoldApartment.year
-            realEstateAgentViewModel.updateRealEstate(mRealEstate)
-            alertDialog.dismiss()
-        }
+    dialogBuilder.setView(dialogView)
+    val alertDialog = dialogBuilder.create()
+    alertDialog.show()
+    alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    bindingSold.cancelButtonDialogSold.setOnClickListener {
+        alertDialog.dismiss()
+    }
+    bindingSold.saveButtonDialogSold.setOnClickListener {
+        mRealEstate.sold = true
+        mRealEstate.day = bindingSold.calendarSoldApartment.dayOfMonth
+        mRealEstate.month = bindingSold.calendarSoldApartment.month
+        mRealEstate.year = bindingSold.calendarSoldApartment.year
+
+        val dateEnd =
+            mRealEstate.day.toString() + "." + mRealEstate.month.toString() + "." + mRealEstate.year.toString()
+        mRealEstate.dateEnd = dateEnd
+        viewModel.updateRealEstate(mRealEstate)
+        alertDialog.dismiss()
+    }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 fun transformUriToString(bitmap: Bitmap?, imageList: ArrayList<String>): ArrayList<String> {
@@ -307,6 +301,7 @@ fun buildDialogRegistration(
         intent.putExtra("mail", mailEditText.text.toString())
         intent.putExtra("password", passwordEditText.text.toString())
         logInActivity.startActivity(intent)
+        alertDialog.dismiss()
     }
     bindingDialog.cancelButtonDialog.setOnClickListener {
         alertDialog.dismiss()
@@ -318,7 +313,7 @@ fun buildDialog(
     activity: Activity,
     context: Context,
     modification: Boolean,
-    realEstateAgentViewModel: RealEstateAgentViewModel?,
+    viewModel: DetailFragmentVIewModel?,
     realEstate: RealEstate?,
     photoReference: String?,
     caption: String?
@@ -343,7 +338,7 @@ fun buildDialog(
         if (realEstate?.photoReference?.size!! > 1) {
             realEstate.photoReference.remove(photoReference)
             realEstate.caption.remove(caption)
-            realEstateAgentViewModel?.updateRealEstate(realEstate)
+            viewModel?.updateRealEstate(realEstate)
             alertDialog.dismiss()
         } else
             Toast.makeText(context, "You have to keep at least one picture", Toast.LENGTH_SHORT)
@@ -361,5 +356,45 @@ fun getLocationByAddress(context: Context, strAddress: String?): LatLng? {
         Log.d("GeoCoder exception", e.toString())
     }
     return null
+}
+
+fun compareDateBefore(chosenDate: String, apartmentDate: String): Boolean {
+    var delimiter = "."
+    val chosenDateParts = chosenDate.split(delimiter)
+    val apartmentDateParts = apartmentDate.split(delimiter)
+
+    if (chosenDateParts[2].toInt() > apartmentDateParts[2].toInt())
+        return true
+    else if (chosenDateParts[2].toInt() < apartmentDateParts[2].toInt())
+        return false
+    else if (chosenDateParts[1].toInt() > apartmentDateParts[1].toInt())
+        return true
+    else if (chosenDateParts[1].toInt() < apartmentDateParts[1].toInt())
+        return false
+    else if (chosenDateParts[0].toInt() > apartmentDateParts[0].toInt())
+        return true
+    else if (chosenDateParts[0].toInt() < apartmentDateParts[0].toInt())
+        return false
+    return true
+}
+
+fun compareDateAfter(chosenDate: String, apartmentDate: String): Boolean {
+    var delimiter = "."
+    val chosenDateParts = chosenDate.split(delimiter)
+    val apartmentDateParts = apartmentDate.split(delimiter)
+
+    if (chosenDateParts[2].toInt() < apartmentDateParts[2].toInt())
+        return true
+    else if (chosenDateParts[2].toInt() > apartmentDateParts[2].toInt())
+        return false
+    else if (chosenDateParts[1].toInt() < apartmentDateParts[1].toInt())
+        return true
+    else if (chosenDateParts[1].toInt() > apartmentDateParts[1].toInt())
+        return false
+    else if (chosenDateParts[0].toInt() < apartmentDateParts[0].toInt())
+        return true
+    else if (chosenDateParts[0].toInt() > apartmentDateParts[0].toInt())
+        return false
+    return true
 }
 

@@ -27,5 +27,9 @@ class RealEstateRepository (private val realEstateDao: RealEstateDao) {
         return realEstateDao.loadRealEstate(id)
     }
 
+    fun loadAllMyRealEstate(id: Int): LiveData<List<RealEstate>>{
+        return realEstateDao.loadAllMyRealEstate(id)
+    }
+
 
 }

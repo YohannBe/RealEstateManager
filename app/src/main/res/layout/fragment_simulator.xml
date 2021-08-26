@@ -3,56 +3,151 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".view.fragments.Simulator"
-    android:background="@color/colorPrimaryBackground"
-    android:clickable="true">
+    android:background="@color/white"
+    android:clickable="true"
+    android:focusable="true">
 
-   <LinearLayout
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:orientation="vertical">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageview_profile_fragment"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/apartment3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="150dp"
+                app:cardCornerRadius="@dimen/radius_corner_l"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="@dimen/padding_huge">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/loan_calculator"
+                            android:textAlignment="center"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="@dimen/categoryTitle"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/how_much_to_borrow"
+                            android:textColor="@color/colorPrimary" />
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/margin_big"
+                            android:background="@color/white"
+                            app:cardCornerRadius="@dimen/radius_corner">
+
+                            <EditText
+                                android:id="@+id/taking_edittext__simulator"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/colorPrimaryBackground"
+                                android:drawableTint="@color/colorSecondary"
+                                android:ems="10"
+                                android:inputType="number"
+                                android:padding="5dp" />
+                        </androidx.cardview.widget.CardView>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/percent"
+                            android:textColor="@color/colorPrimary" />
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/margin_big"
+                            android:background="@color/colorPrimaryBackground"
+                            app:cardCornerRadius="@dimen/radius_corner">
+
+                            <EditText
+                                android:id="@+id/percent_edittext_simulator"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/colorPrimaryBackground"
+                                android:drawableTint="@color/colorSecondary"
+                                android:ems="10"
+                                android:inputType="textPersonName"
+                                android:padding="5dp" />
+                        </androidx.cardview.widget.CardView>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/years"
+                            android:textColor="@color/colorPrimary" />
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/margin_big"
+                            android:background="@color/colorPrimaryBackground"
+                            app:cardCornerRadius="@dimen/radius_corner">
+
+                            <EditText
+                                android:id="@+id/year_edittext_simulator"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/colorPrimaryBackground"
+                                android:drawableTint="@color/colorSecondary"
+                                android:ems="10"
+                                android:inputType="textPersonName"
+                                android:padding="5dp" />
+                        </androidx.cardview.widget.CardView>
+
+                        <Button
+                            android:id="@+id/button_simulator"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/calculation" />
 
 
-       <TextView
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:text="How much you wanna borrow:" />
-
-       <EditText
-           android:id="@+id/taking_edittext__simulator"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content" />
-
-       <TextView
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:text="percent:" />
-
-       <EditText
-           android:id="@+id/percent_edittext_simulator"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:inputType="numberDecimal"/>
-
-       <TextView
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:text="Years:" />
-
-       <EditText
-           android:id="@+id/year_edittext_simulator"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:inputType="number"/>
-
-       <Button
-           android:id="@+id/button_simulator"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:text="calcul"
-           android:layout_gravity="center"/>
+                    </LinearLayout>
+                </ScrollView>
 
 
-   </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
+
+
 
 </FrameLayout>

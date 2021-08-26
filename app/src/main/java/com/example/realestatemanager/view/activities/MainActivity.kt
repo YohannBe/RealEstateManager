@@ -12,6 +12,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import androidx.annotation.NonNull
@@ -19,12 +21,12 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -33,8 +35,8 @@ import com.example.realestatemanager.databinding.DialogFilterBinding
 import com.example.realestatemanager.model.myObjects.RealEstateAgent
 import com.example.realestatemanager.utils.idRealEstate
 import com.example.realestatemanager.utils.intentIdAgent
+import com.example.realestatemanager.utils.outputDateFormat
 import com.example.realestatemanager.view.fragments.DetailsFragment
-import com.example.realestatemanager.view.fragments.ListApartmentFragment
 import com.example.realestatemanager.view.fragments.ProfileFragment
 import com.example.realestatemanager.view.fragments.Simulator
 import com.example.realestatemanager.view.myInterface.CommunicatorInterface
@@ -44,6 +46,10 @@ import com.example.realestatemanager.viewmodel.mainActivity.MainActivityViewMode
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.navigation.NavigationView
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.properties.Delegates
 
 
@@ -67,7 +73,9 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
     private var filter = false
     private val listFilterMap = HashMap<String, String>()
     private lateinit var mainActivityViewModel: MainActivityViewModel
+    private var closeButtonFragmentContainer: CardView? = null
     private var closeButtonFragment: ImageButton? = null
+
 
     private val toLeft: Animation by lazy {
         AnimationUtils.loadAnimation(
@@ -89,6 +97,7 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
         setContentView(R.layout.activity_main)
 
         id = intent.getIntExtra("account", -1)
+
         val viewModelFactory = Injection.provideMainActivityViewModelFactory(this)
         mainActivityViewModel = ViewModelProviders.of(this, viewModelFactory).get(
             MainActivityViewModel::class.java
@@ -105,7 +114,7 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
             val editor = sharedPreferences.edit()
             editor.putInt("idSaved", id)
             editor.apply()
-
+            mainActivityViewModel.setIdCurrentAgent(id)
             mainActivityViewModel.getMyAgent(id)
                 .observe(this, { myAccount: RealEstateAgent? ->
                     account = myAccount
@@ -128,7 +137,12 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
             valueFromPrice,
             valueToPrice,
             valueFromSurface,
-            valueToSurface
+            valueToSurface,
+            "",
+            "",
+            "",
+            "",
+            ""
         )
     }
 
@@ -157,6 +171,8 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                 .commit()
         }
         closeButtonFragment = if (tablet) findViewById(R.id.closefragment_button) else null
+        closeButtonFragmentContainer =
+            if (tablet) findViewById(R.id.closefragment_cardview) else null
     }
 
     private fun configureElement() {
@@ -227,8 +243,45 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
         val dialogView = binding.root
         dialogBuilder.setView(dialogView)
         val alertDialog = dialogBuilder.create()
+        var chosenCity = ""
+        mainActivityViewModel.getAllApartment().observe(this, {
+            val listCity = ArrayList<String>()
+            listCity.add("Select a city")
+            for (realEstate in it) {
+                if (!listCity.contains(realEstate.city))
+                    listCity.add(realEstate.city)
+            }
+            val mAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item, listCity
+            )
+            binding.spinnerDialogFilter.adapter = mAdapter
+
+            binding.spinnerDialogFilter.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                    }
+
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        chosenCity = listCity[position]
+                    }
+                }
+
+        })
+
         alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         alertDialog.show()
+
+        var beforeText = ""
+        var betweenTextFirst = ""
+        var betweenTextSecond = ""
+        var afterText = ""
 
         mainActivityViewModel.getFilter().observe(this, {
             if (it.getBoolean("filterPut")) {
@@ -238,6 +291,15 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                 val priceTo: Int = it.getInt("priceTo")
                 val surfaceFrom: Int = it.getInt("surfaceFrom")
                 val surfaceTo: Int = it.getInt("surfaceTo")
+                val alreadyChosenCity: String = it.getString("chosenCity")!!
+
+                beforeText = it.getString("beforeText")!!
+                afterText = it.getString("afterText")!!
+                betweenTextFirst = it.getString("betweenTextFirst")!!
+                betweenTextSecond = it.getString("betweenTextSecond")!!
+
+                if (alreadyChosenCity != "" && alreadyChosenCity != "Select a city")
+                    binding.chosenCityTextview.text = "Current chosen city: " + alreadyChosenCity
                 if (listFilter.containsKey("appartment")) binding.chipApartmentapartment.isChecked =
                     true
                 if (listFilter.containsKey("duplex")) binding.chipApartmentduplex.isChecked =
@@ -258,6 +320,20 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                 if (listFilter.containsKey("bathroom1")) binding.chipBathroom1.isChecked = true
                 if (listFilter.containsKey("bathroom2")) binding.chipBathroom2.isChecked = true
                 if (listFilter.containsKey("bathroom3")) binding.chipBathroom3.isChecked = true
+                if (listFilter.containsKey("chipSchool")) binding.chipSchool.isChecked = true
+                if (listFilter.containsKey("chipPark")) binding.chipPark.isChecked = true
+                if (listFilter.containsKey("chipSubway")) binding.chipSubway.isChecked = true
+                if (listFilter.containsKey("chipRestaurant")) binding.chipRestaurant.isChecked =
+                    true
+                if (listFilter.containsKey("chipSport")) binding.chipSport.isChecked = true
+                if (listFilter.containsKey("chipPool")) binding.chipPool.isChecked = true
+                if (listFilter.containsKey("chipBus")) binding.chipBus.isChecked = true
+                if (listFilter.containsKey("chipMarket")) binding.chipMarket.isChecked = true
+                if (listFilter.containsKey("chipStadium")) binding.chipStadium.isChecked = true
+                if (listFilter.containsKey("chipPic1")) binding.chipPic1.isChecked = true
+                if (listFilter.containsKey("chipPic2")) binding.chipPic2.isChecked = true
+                if (listFilter.containsKey("chipPic3")) binding.chipPic3.isChecked = true
+
 
                 val values: List<Float> = listOf(priceFrom.toFloat(), priceTo.toFloat())
                 binding.priceRangeSlider.values = values
@@ -266,9 +342,21 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                     listOf(surfaceFrom.toFloat(), surfaceTo.toFloat())
                 binding.surfaceRangeSlider.values = valuesSurface
 
+                binding.textviewDateShow.text = beforeText
+                binding.textviewDateShowAfter.text = afterText
+                binding.textviewDateShowBetween.text = betweenTextFirst + " " + betweenTextSecond
+
+                if (beforeText != "") binding.beforeTimePicker.chipBackgroundColor =
+                    ColorStateList.valueOf(ContextCompat.getColor(this, R.color.chip_color))
+                if (afterText != "") binding.afterTimePicker.chipBackgroundColor =
+                    ColorStateList.valueOf(ContextCompat.getColor(this, R.color.chip_color))
+                if (betweenTextFirst != "" && betweenTextSecond != "") binding.intervalTimePicker.chipBackgroundColor =
+                    ColorStateList.valueOf(ContextCompat.getColor(this, R.color.chip_color))
 
             }
         })
+
+
         binding.beforeTimePicker.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Select date")
@@ -277,25 +365,12 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                 .build()
             datePicker.show(supportFragmentManager, "tag")
             datePicker.addOnPositiveButtonClickListener {
-                binding.afterTimePicker.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.colorPrimaryBackground
-                    )
-                )
-                binding.intervalTimePicker.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.colorPrimaryBackground
-                    )
-                )
                 binding.beforeTimePicker.chipBackgroundColor =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.chip_color))
-                binding.textviewDateShow.text =
-                    "" + binding.textviewDateShow.text + datePicker.headerText.toString()
 
-                datePicker.selection
+                beforeText = outputDateFormat.format(it)
 
+                binding.textviewDateShow.text = beforeText
             }
 
             datePicker.addOnNegativeButtonClickListener {
@@ -323,22 +398,12 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                     .build()
             dateRangePicker.show(supportFragmentManager, "tag")
             dateRangePicker.addOnPositiveButtonClickListener {
-                binding.afterTimePicker.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.colorPrimaryBackground
-                    )
-                )
-                binding.beforeTimePicker.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.colorPrimaryBackground
-                    )
-                )
                 binding.intervalTimePicker.chipBackgroundColor =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.chip_color))
-                binding.textviewDateShow.text =
-                    "" + binding.textviewDateShow.text + dateRangePicker.headerText.toString()
+
+                betweenTextFirst = outputDateFormat.format(it.first)
+                betweenTextSecond = outputDateFormat.format(it.second)
+                binding.textviewDateShowBetween.text = betweenTextFirst + " " + betweenTextSecond
             }
             dateRangePicker.addOnNegativeButtonClickListener {
                 binding.intervalTimePicker.chipBackgroundColor = ColorStateList.valueOf(
@@ -358,23 +423,13 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
                 .build()
             datePicker.show(supportFragmentManager, "tag")
+
             datePicker.addOnPositiveButtonClickListener {
-                binding.beforeTimePicker.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.colorPrimaryBackground
-                    )
-                )
-                binding.intervalTimePicker.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(
-                        this,
-                        R.color.colorPrimaryBackground
-                    )
-                )
                 binding.afterTimePicker.chipBackgroundColor =
                     ColorStateList.valueOf(ContextCompat.getColor(this, R.color.chip_color))
-                binding.textviewDateShow.text =
-                    "" + binding.textviewDateShow.text + datePicker.headerText.toString()
+
+                afterText = outputDateFormat.format(it)
+                binding.textviewDateShowAfter.text = afterText
             }
 
             datePicker.addOnNegativeButtonClickListener {
@@ -397,6 +452,11 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                         R.color.colorPrimaryBackground
                     )
                 )
+            beforeText = ""
+        }
+
+        binding.buttonResetDateBetween.setOnClickListener {
+            binding.textviewDateShowBetween.text = ""
             binding.intervalTimePicker.chipBackgroundColor =
                 ColorStateList.valueOf(
                     ContextCompat.getColor(
@@ -404,6 +464,12 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                         R.color.colorPrimaryBackground
                     )
                 )
+            betweenTextFirst = ""
+            betweenTextSecond = ""
+        }
+
+        binding.buttonResetDateAfter.setOnClickListener {
+            binding.textviewDateShowAfter.text = ""
             binding.afterTimePicker.chipBackgroundColor =
                 ColorStateList.valueOf(
                     ContextCompat.getColor(
@@ -411,6 +477,7 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                         R.color.colorPrimaryBackground
                     )
                 )
+            afterText = ""
         }
 
         binding.cancelButtonDialogFilter.setOnClickListener {
@@ -421,12 +488,12 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
         binding.buttonResetDialog.setOnClickListener {
             mainActivityViewModel.passFilter(
                 false,
-                null, -1, -1, -1, -1
+                null, -1, -1, -1, -1, chosenCity, "", "", "", ""
             )
             alertDialog.dismiss()
         }
         binding.buttonFilterDialog.setOnClickListener {
-            listFilter = ArrayList<String>()
+            listFilter = ArrayList()
             listFilterMap.clear()
 
             if (binding.chipApartmentapartment.isChecked) listFilterMap["appartment"] =
@@ -466,9 +533,32 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
             if (binding.chipBathroom3.isChecked) listFilterMap["bathroom3"] =
                 binding.chipBathroom3.text.toString()
 
-            /*when {
-                !TextUtils.isEmpty(binding.textviewDateShow.text) -> listFilter.add(binding.textviewDateShow.text.toString())
-            }*/
+            if (binding.chipSchool.isChecked) listFilterMap["chipSchool"] =
+                binding.chipSchool.text.toString()
+            if (binding.chipPark.isChecked) listFilterMap["chipPark"] =
+                binding.chipPark.text.toString()
+            if (binding.chipSubway.isChecked) listFilterMap["chipSubway"] =
+                binding.chipSubway.text.toString()
+            if (binding.chipRestaurant.isChecked) listFilterMap["chipRestaurant"] =
+                binding.chipRestaurant.text.toString()
+            if (binding.chipSport.isChecked) listFilterMap["chipSport"] =
+                binding.chipSport.text.toString()
+            if (binding.chipStadium.isChecked) listFilterMap["chipStadium"] =
+                binding.chipStadium.text.toString()
+            if (binding.chipPool.isChecked) listFilterMap["chipPool"] =
+                binding.chipPool.text.toString()
+            if (binding.chipBus.isChecked) listFilterMap["chipBus"] =
+                binding.chipBus.text.toString()
+            if (binding.chipMarket.isChecked) listFilterMap["chipMarket"] =
+                binding.chipMarket.text.toString()
+
+            if (binding.chipPic1.isChecked) listFilterMap["chipPic1"] =
+                binding.chipPic1.text.toString()
+            if (binding.chipPic2.isChecked) listFilterMap["chipPic2"] =
+                binding.chipPic2.text.toString()
+            if (binding.chipPic3.isChecked) listFilterMap["chipPic3"] =
+                binding.chipPic3.text.toString()
+
             valueFromPrice = binding.priceRangeSlider.values[0].toInt()
             valueToPrice = binding.priceRangeSlider.values[1].toInt()
             valueFromSurface = binding.surfaceRangeSlider.values[0].toInt()
@@ -480,7 +570,12 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
                 valueFromPrice,
                 valueToPrice,
                 valueFromSurface,
-                valueToSurface
+                valueToSurface,
+                chosenCity,
+                beforeText,
+                afterText,
+                betweenTextFirst,
+                betweenTextSecond
             )
             alertDialog.dismiss()
 
@@ -496,18 +591,17 @@ class MainActivity : AppCompatActivity(), OnButtonClickedListener,
 
     override fun passData(input: Int) {
         if (tablet) {
-            closeButtonFragment?.visibility = View.VISIBLE
-
             val secondFragmentLayout: FrameLayout =
                 findViewById(R.id.main_activity_frame_layout_details)
             if (secondFragmentLayout.visibility != View.VISIBLE) {
                 secondFragmentLayout.startAnimation(toLeft)
             }
+            closeButtonFragmentContainer?.visibility = View.VISIBLE
             secondFragmentLayout.visibility = View.VISIBLE
             closeButtonFragment?.setOnClickListener {
                 secondFragmentLayout.startAnimation(toRight)
                 secondFragmentLayout.visibility = View.GONE
-                closeButtonFragment!!.visibility = View.GONE
+                closeButtonFragmentContainer!!.visibility = View.GONE
             }
             val bundle = Bundle()
             bundle.putInt(idRealEstate, input)

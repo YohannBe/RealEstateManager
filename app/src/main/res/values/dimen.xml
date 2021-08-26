@@ -3,6 +3,13 @@
     <dimen name="categoryTitle">25sp</dimen>
     <dimen name="description">15sp</dimen>
     <dimen name="padding_normal">5dp</dimen>
+    <dimen name="padding_big">10dp</dimen>
+    <dimen name="padding_huge">15dp</dimen>
+    <dimen name="margin_tiny">2dp</dimen>
     <dimen name="margin_small">5dp</dimen>
     <dimen name="margin_big">15dp</dimen>
+    <dimen name="margin_huge">20dp</dimen>
+    <dimen name="radius_corner">7dp</dimen>
+    <dimen name="radius_corner_l">20dp</dimen>
+
 </resources>

@@ -2,15 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginVertical="20dp">
+    android:layout_height="match_parent">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:padding="20dp"
-        app:cardCornerRadius="10dp"
+        android:layout_margin="@dimen/margin_huge"
+        app:cardCornerRadius="@dimen/radius_corner"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,14 +16,12 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
+            android:layout_height="match_parent">
 
             <ScrollView
+                android:id="@+id/scrollview_dialog_filter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="30dp"
-                android:padding="10dp"
                 app:layout_constraintBottom_toTopOf="@+id/linearbuttonlayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -34,12 +30,25 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_marginVertical="@dimen/margin_huge"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="@dimen/padding_huge"
+                    android:paddingBottom="50dp"
+                    android:paddingTop="@dimen/padding_huge">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/filter"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/categoryTitle"
+                        android:textColor="@color/colorPrimary"
+                        android:textStyle="bold"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Type:" />
+                        android:text="@string/kind_of_real_estate"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:layout_width="wrap_content"
@@ -51,8 +60,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="Apartment"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/apartment"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_apartmentloft"
@@ -60,8 +69,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="Loft"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/loft"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_apartmentduplex"
@@ -69,8 +78,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="Duplex"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/duplex"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_apartmenthouse"
@@ -78,8 +87,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="House"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/house"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_apartmentvilla"
@@ -87,15 +96,34 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="Villa"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/villa"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                     </com.google.android.material.chip.ChipGroup>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Price interval:" />
+                        android:text="@string/city"
+                        android:textColor="@color/colorPrimary" />
+
+                    <Spinner
+                        android:id="@+id/spinner_dialog_filter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/chosen_city_textview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="" />
+
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/price_interval"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.slider.RangeSlider
                         android:id="@+id/price_range_slider"
@@ -109,7 +137,8 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Surface interval:" />
+                        android:text="@string/surface_interval"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.slider.RangeSlider
                         android:id="@+id/surface_range_slider"
@@ -125,7 +154,8 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Number room:" />
+                        android:text="@string/number_of_room"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:layout_width="wrap_content"
@@ -137,9 +167,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="Studio"
                             android:tag="room1"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/studio"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_room2"
@@ -147,9 +177,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="2"
                             android:tag="room2"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_2"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_room3"
@@ -157,9 +187,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="3"
                             android:tag="room3"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_3"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_room4"
@@ -167,9 +197,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="4"
                             android:tag="room4"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_4"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_room5"
@@ -177,15 +207,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="5+"
                             android:tag="room5"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_5"
+                            app:chipCornerRadius="@dimen/radius_corner" />
                     </com.google.android.material.chip.ChipGroup>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Number bedroom:" />
+                        android:text="@string/number_of_bedroom"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:layout_width="wrap_content"
@@ -197,9 +228,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="1"
                             android:tag="bedroom1"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_1"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_bedroom2"
@@ -207,9 +238,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="2"
                             android:tag="bedroom2"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_2"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_bedroom3"
@@ -217,9 +248,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="3"
                             android:tag="bedroom3"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_3"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_bedroom4"
@@ -227,9 +258,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="4"
                             android:tag="bedroom4"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_4"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_bedroom5"
@@ -237,15 +268,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="5+"
                             android:tag="bedroom5"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_5"
+                            app:chipCornerRadius="@dimen/radius_corner" />
                     </com.google.android.material.chip.ChipGroup>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Number bathroom:" />
+                        android:text="@string/number_of_bathroom"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:layout_width="wrap_content"
@@ -257,9 +289,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="1"
                             android:tag="bathroom1"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_1"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_bathroom2"
@@ -267,9 +299,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="2"
                             android:tag="bathroom2"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_2"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_bathroom3"
@@ -277,17 +309,159 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checkable="true"
-                            android:text="3+"
                             android:tag="bathroom3"
-                            app:chipCornerRadius="10dp" />
+                            android:text="@string/_3plus"
+                            app:chipCornerRadius="@dimen/radius_corner" />
 
                     </com.google.android.material.chip.ChipGroup>
-
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Put in market between" />
+                        android:text="@string/point_of_interest"
+                        android:textColor="@color/colorPrimary" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_park"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Park"
+                            android:text="@string/park"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_subway"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Subway"
+                            android:text="@string/subway"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_sport"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Sport"
+                            android:text="@string/sport_club"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_bus"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Bus"
+                            android:text="@string/bus"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_restaurant"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Restaurant"
+                            android:text="@string/restaurant"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_pool"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Pool"
+                            android:text="@string/pool"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_stadium"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Stadium"
+                            android:text="@string/stadium"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_market"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="Market"
+                            android:text="@string/market"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_school"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:tag="School"
+                            android:text="@string/school"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/has_picture"
+                        android:textColor="@color/colorPrimary" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_pic1"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/_1plus"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_pic2"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/_2plus"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_pic3"
+                            style="@style/Widget.RealEstateManager.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/_3plus"
+                            app:chipCornerRadius="@dimen/radius_corner" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/for_sales_date"
+                        android:textColor="@color/colorPrimary" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:layout_width="match_parent"
@@ -307,9 +481,9 @@
                                 android:layout_marginHorizontal="5dp"
                                 android:layout_weight="1"
                                 android:checkable="false"
-                                android:text="Before"
+                                android:text="@string/before"
                                 android:textAlignment="center"
-                                app:chipCornerRadius="10dp" />
+                                app:chipCornerRadius="@dimen/radius_corner" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/interval_time_picker"
@@ -319,9 +493,9 @@
                                 android:layout_marginHorizontal="5dp"
                                 android:layout_weight="1"
                                 android:checkable="false"
-                                android:text="In between"
+                                android:text="@string/in_between"
                                 android:textAlignment="center"
-                                app:chipCornerRadius="10dp" />
+                                app:chipCornerRadius="@dimen/radius_corner" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/after_time_picker"
@@ -331,15 +505,16 @@
                                 android:layout_marginHorizontal="5dp"
                                 android:layout_weight="1"
                                 android:checkable="false"
-                                android:text="After"
+                                android:text="@string/after"
                                 android:textAlignment="center"
-                                app:chipCornerRadius="10dp" />
+                                app:chipCornerRadius="@dimen/radius_corner" />
                         </LinearLayout>
                     </com.google.android.material.chip.ChipGroup>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/margin_small"
                         android:orientation="horizontal">
 
                         <TextView
@@ -371,27 +546,75 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-                    <TextView
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="City" />
+                        android:layout_marginVertical="@dimen/margin_small"
+                        android:orientation="horizontal">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/city_autocompletion"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/textview_date_show_between"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="200dp"
+                            android:text=""
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="5dp"
+                            app:cardCornerRadius="13dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageButton
+                                android:id="@+id/button_reset_date_between"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:background="@color/colorPrimary"
+                                android:src="@drawable/close_icons" />
+                        </androidx.cardview.widget.CardView>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Country" />
+                        android:layout_marginVertical="@dimen/margin_small"
+                        android:orientation="horizontal">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/country_autocompletion"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/textview_date_show_after"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="200dp"
+                            android:text=""
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="5dp"
+                            app:cardCornerRadius="13dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageButton
+                                android:id="@+id/button_reset_date_after"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:background="@color/colorPrimary"
+                                android:src="@drawable/close_icons" />
+                        </androidx.cardview.widget.CardView>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </LinearLayout>
 
@@ -401,34 +624,36 @@
                 android:id="@+id/linearbuttonlayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_big"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                >
 
                 <Button
                     android:id="@+id/cancel_button_dialog_filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginHorizontal="@dimen/margin_small"
                     android:layout_weight="1"
-                    android:text="Cancel" />
+                    android:text="@string/cancel" />
 
                 <Button
                     android:id="@+id/button_reset_dialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginHorizontal="@dimen/margin_small"
                     android:layout_weight="1"
-                    android:text="Reset" />
+                    android:text="@string/reset" />
 
                 <Button
                     android:id="@+id/button_filter_dialog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginHorizontal="@dimen/margin_small"
                     android:layout_weight="1"
-                    android:text="Filter" />
+                    android:text="@string/filter" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

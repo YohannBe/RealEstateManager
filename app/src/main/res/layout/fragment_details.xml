@@ -6,8 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/colorPrimaryBackground"
+    android:background="@color/white"
     tools:context=".view.fragments.DetailsFragment">
+
+    <ImageView
+        android:id="@+id/imageview_detail_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/apartment6"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -31,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
-            android:backgroundTint="@color/colorSecondary"
+            android:backgroundTint="@color/colorSecondaryDark"
             android:src="@drawable/modification_icons"
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -42,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="@dimen/margin_tiny"
             android:backgroundTint="@color/colorSecondaryLight"
             android:src="@drawable/sold_icons"
             android:visibility="invisible"
@@ -55,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="@dimen/margin_tiny"
             android:backgroundTint="@color/colorSecondaryLight"
             android:src="@drawable/photos_icons"
             android:visibility="invisible"
@@ -68,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="@dimen/margin_tiny"
             android:backgroundTint="@color/colorSecondaryLight"
             android:src="@drawable/changes_icons"
             android:visibility="invisible"
@@ -85,178 +93,325 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
 
-                <TextView
-                    android:id="@+id/title_media"
+                android:layout_marginTop="150dp"
+                app:cardCornerRadius="@dimen/radius_corner_l"
+                app:cardElevation="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:text="media"
-                    android:textSize="@dimen/categoryTitle"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:paddingHorizontal="@dimen/padding_big"
+                    android:paddingTop="@dimen/padding_big"
+                    android:paddingBottom="150dp">
 
-                <HorizontalScrollView
-                    android:id="@+id/horizontalscrollview_photo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@+id/title_media">
-
-                    <LinearLayout
-                        android:id="@+id/linearlayout_detailapartment"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/title_media"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:text="@string/media"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="@dimen/categoryTitle"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                    </LinearLayout>
-                </HorizontalScrollView>
+                    <HorizontalScrollView
+                        android:id="@+id/horizontalscrollview_photo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@+id/title_media">
 
-                <TextView
-                    android:id="@+id/title_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Description"
-                    android:textSize="@dimen/categoryTitle"
-                    app:layout_constraintTop_toBottomOf="@+id/horizontalscrollview_photo" />
+                        <LinearLayout
+                            android:id="@+id/linearlayout_detailapartment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/full_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@+id/title_description" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
 
+                    <TextView
+                        android:id="@+id/title_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/description"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="@dimen/categoryTitle"
+                        android:textStyle="bold"
+                        app:layout_constraintTop_toBottomOf="@+id/horizontalscrollview_photo" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/full_description">
+                    <TextView
+                        android:id="@+id/date_on_market"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@+id/title_description" />
+
+                    <TextView
+                        android:id="@+id/full_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorPrimary"
+                        app:layout_constraintTop_toBottomOf="@+id/date_on_market" />
+
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/full_description">
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="horizontal">
 
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:drawableStart="@drawable/surface_icons"
-                                android:text="Surface" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/surface_textview_details"
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/surface"
+                                    android:textColor="@color/colorPrimary"
+                                    app:drawableStartCompat="@drawable/surface_icons" />
+
+                                <TextView
+                                    android:id="@+id/surface_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/rooms"
+                                    android:textColor="@color/colorPrimary"
+                                    app:drawableStartCompat="@drawable/home_icons" />
+
+                                <TextView
+                                    android:id="@+id/room_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary" />
+
+                                <TextView
+                                    android:id="@+id/bathroom_textview_details_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/bedrooms"
+                                    android:textColor="@color/colorPrimary"
+                                    android:visibility="gone"
+                                    app:drawableStartCompat="@drawable/bedroom_icons" />
+
+                                <TextView
+                                    android:id="@+id/bathroom_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary"
+                                    android:visibility="gone" />
+
+                                <TextView
+                                    android:id="@+id/bedroom_textview_details_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/bathrooms"
+                                    android:textColor="@color/colorPrimary"
+                                    android:visibility="gone"
+                                    app:drawableStartCompat="@drawable/bathroom_icons" />
+
+                                <TextView
+                                    android:id="@+id/bedroom_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary"
+                                    android:visibility="gone" />
+                            </LinearLayout>
+
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp"
-                                android:text="750" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:drawableStart="@drawable/home_icons"
-                                android:text="Rooms" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/location"
 
-                            <TextView
-                                android:id="@+id/room_textview_details"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp"
-                                android:text="8" />
+                                    android:textColor="@color/colorPrimary"
+                                    app:drawableStartCompat="@drawable/location_icons" />
 
-                            <TextView
-                                android:id="@+id/bathroom_textview_details_title"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:drawableStart="@drawable/bedroom_icons"
-                                android:text="Bedrooms"
-                                android:visibility="gone" />
+                                <TextView
+                                    android:id="@+id/address_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary" />
 
-                            <TextView
-                                android:id="@+id/bathroom_textview_details"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp"
-                                android:text="8"
-                                android:visibility="gone" />
+                                <TextView
+                                    android:id="@+id/address_city_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary" />
 
-                            <TextView
-                                android:id="@+id/bedroom_textview_details_title"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:drawableStart="@drawable/bathroom_icons"
-                                android:text="Bathrooms"
-                                android:visibility="gone" />
+                                <TextView
+                                    android:id="@+id/address_zipcode_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary" />
 
-                            <TextView
-                                android:id="@+id/bedroom_textview_details"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp"
-                                android:text="8"
-                                android:visibility="gone" />
+                                <TextView
+                                    android:id="@+id/address_country_textview_details"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:textColor="@color/colorPrimary" />
+
+                            </LinearLayout>
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
+                        <TextView
+                            android:id="@+id/poi_title"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:text="@string/point_of_interest_"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="@dimen/categoryTitle"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
 
-                            <TextView
+                        <com.google.android.material.chip.ChipGroup
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_park"
+                                style="@style/Widget.MaterialComponents.Chip.Action"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:drawableStart="@drawable/location_icons"
-                                android:text="Location"
-                                android:textStyle="bold" />
+                                android:tag="Park"
+                                android:text="@string/park"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
 
-                            <TextView
-                                android:id="@+id/address_textview_details"
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_subway"
+                                style="@style/Widget.MaterialComponents.Chip.Action"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp" />
+                                android:tag="Subway"
+                                android:text="@string/subway"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
 
-                            <TextView
-                                android:id="@+id/address_city_textview_details"
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_sport"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp" />
+                                android:tag="Sport"
+                                android:text="@string/sport_club"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
 
-                            <TextView
-                                android:id="@+id/address_zipcode_textview_details"
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_bus"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp" />
+                                android:tag="Bus"
+                                android:text="@string/bus"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
 
-                            <TextView
-                                android:id="@+id/address_country_textview_details"
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_restaurant"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp" />
+                                android:tag="Restaurant"
+                                android:text="@string/restaurant"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
 
-                        </LinearLayout>
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_pool"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:tag="Pool"
+                                android:text="@string/pool"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_stadium"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:tag="Stadium"
+                                android:text="@string/stadium"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_market"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:tag="Market"
+                                android:text="@string/market"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_school"
+                                style="@style/Widget.MaterialComponents.Chip.Action"                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:tag="School"
+                                android:text="@string/school"
+                                android:visibility="gone"
+                                app:chipBackgroundColor="@color/colorSecondaryChip"
+                                app:chipCornerRadius="10dp"
+                                app:chipIcon="@drawable/check_icons" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                        <ImageView
+                            android:id="@+id/imageview_maps_detail"
+                            android:layout_width="250dp"
+                            android:layout_height="250dp"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="10dp" />
                     </LinearLayout>
 
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
 
-                    <ImageView
-                        android:id="@+id/imageview_maps_detail"
-                        android:layout_width="250dp"
-                        android:layout_height="250dp"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="10dp" />
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
 
